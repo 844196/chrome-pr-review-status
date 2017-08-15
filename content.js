@@ -6,12 +6,8 @@ document.querySelectorAll('.js-issue-row').forEach((row) => {
       prPage.innerHTML = res
       sidebar = prPage.querySelector('#partial-discussion-sidebar')
 
-      let reviewers = null
-      Array.from(sidebar.children).some((item) => {
-        if (item.querySelector('.discussion-sidebar-heading').textContent.match(/Reviewers/)) {
-          reviewers = item
-          return true
-        }
+      let reviewers = Array.from(sidebar.children).find((item) => {
+        return item.querySelector('.discussion-sidebar-heading').textContent.match(/Reviewers/)
       })
 
       reviewers.style.paddingTop = 'inherit'
