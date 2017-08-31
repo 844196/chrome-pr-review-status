@@ -54,4 +54,12 @@
           this.dataset.isActive = !isActive
         })
     })
+    .then(() => {
+      chrome.storage.local.get({isDisplayDefault: false}, (config) => {
+        if (config.isDisplayDefault === false) {
+          return
+        }
+        btn.dispatchEvent(new Event('click'))
+      })
+    })
 })()
