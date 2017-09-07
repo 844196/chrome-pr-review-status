@@ -50,6 +50,36 @@
           }
         });
 
+        // TODO 設定可能にする
+        let enableBackgroundColor = true
+
+        if (enableBackgroundColor) {
+          let myName = "@" + (document.getElementsByName("user-login")[0]["content"])
+
+          let reviewerItem = reviewers.querySelector('.css-truncate')
+          let isColorized = false
+          for (let key = 0; key < reviewerItem.children.length; key++) {
+            let item = reviewerItem.children[key]
+            if (myName == item.querySelector('img')['alt']) {
+              console.log(row)
+              let classList = item.querySelector('.reviewers-status-icon').querySelector('svg').classList
+              if (classList.contains("octicon-check")) {
+                row.style["background-color"] = "#b9f3d2"
+              } else if (classList.contains("octicon-primitive-dot")) {
+                row.style["background-color"] = "#f3f3b9"
+              } else if (classList.contains("octicon-x")) {
+                row.style["background-color"] = "#f3b9b9"
+              } else if (classList.contains("octicon-comment")) {
+                row.style["background-color"] = "#ffffff"
+              }
+              isColorized = true
+            }
+          }
+          if (isColorized == false) {
+            row.style["background-color"] = "#e2e2e2"
+          }
+        }
+
         reviewers.classList.add('review-status', 'float-left', 'col-3', 'p-2')
         reviewers.style.display = 'none'
 
