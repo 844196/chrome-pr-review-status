@@ -1,7 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
   chrome.storage.local.get({
       isDisplayDefault: false,
-      isCompactDisplay: false
+      isCompactDisplay: false,
+      enableBackgroundColor: false
     }, (config) => {
     document.querySelectorAll('.radio').forEach((radio) => {
       switch (radio.name) {
@@ -12,6 +13,11 @@ document.addEventListener('DOMContentLoaded', () => {
           break;
         case 'compact':
           if (radio.value === config.isCompactDisplay.toString()) {
+            radio.setAttribute('checked', 'true')
+          }
+          break;
+        case 'bg':
+          if (radio.value === config.enableBackgroundColor.toString()) {
             radio.setAttribute('checked', 'true')
           }
           break;
@@ -29,6 +35,11 @@ document.addEventListener('DOMContentLoaded', () => {
       case 'compact':
         radio.addEventListener('change', function () {
           chrome.storage.local.set({isCompactDisplay: this.value == 'true'})
+        })
+        break;
+      case 'bg':
+        radio.addEventListener('change', function () {
+          chrome.storage.local.set({enableBackgroundColor: this.value == 'true'})
         })
         break;
     }
