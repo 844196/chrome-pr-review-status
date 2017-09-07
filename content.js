@@ -12,10 +12,10 @@
 
         let reviewers = page.querySelector('.discussion-sidebar-item')
 
-        // TODO 設定可能にする
-        let isCompactDisplay = true
-
-        if (isCompactDisplay) {
+        chrome.storage.local.get({isCompactDisplay: false}, (config) => {
+          if (config.isCompactDisplay === false) {
+            return
+          }
           let reviewerItem = reviewers.querySelector('.css-truncate')
 
           let statusArray = {}
@@ -36,19 +36,19 @@
           })
 
           for(key in statusArray){
-            let p = document.createElement('p');
-            let v = statusArray[key]
-            let status = v[0]['status']
+            let pre = document.createElement('p');
+            let value = statusArray[key]
+            let status = value[0]['status']
             status.classList.remove('float-right')
             status.classList.add('float-left')
             status.style.width = '20px'
-            p.insertBefore(status, p.nextSibling)
-            for(k in v) {
-              p.insertBefore(v[k]['img'], p.nextSibling)
+            pre.insertBefore(status, p.nextSibling)
+            for(k in value) {
+              pre.insertBefore(value[k]['img'], p.nextSibling)
             }
-            reviewerItem.appendChild(p)
+            reviewerItem.appendChild(pre)
           }
-        }
+        });
 
         reviewers.classList.add('review-status', 'float-left', 'col-3', 'p-2')
         reviewers.style.display = 'none'
