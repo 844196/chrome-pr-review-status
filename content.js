@@ -42,9 +42,9 @@
             status.classList.remove('float-right')
             status.classList.add('float-left')
             status.style.width = '20px'
-            pre.insertBefore(status, p.nextSibling)
+            pre.insertBefore(status, pre.nextSibling)
             for(k in value) {
-              pre.insertBefore(value[k]['img'], p.nextSibling)
+              pre.insertBefore(value[k]['img'], pre.nextSibling)
             }
             reviewerItem.appendChild(pre)
           }
