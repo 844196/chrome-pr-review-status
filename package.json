@@ -1,0 +1,16 @@
+{
+  "name": "chrome-pr-review-status",
+  "version": "0.1.0",
+  "repository": "https://github.com/844196/chrome-pr-review-status",
+  "author": "Masaya Takeda <844196@gmail.com>",
+  "contributors": [
+    "Takuya Hayashi <qrbys@outlook.com>"
+  ],
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "copy-webpack-plugin": "^4.6.0",
+    "webpack": "^4.28.1",
+    "webpack-cli": "^3.2.1"
+  }
+}
