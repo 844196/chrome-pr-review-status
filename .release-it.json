@@ -12,7 +12,7 @@
   "github": {
     "release": true,
     "releaseName": "${version}",
-    "assets": ["${name}-${version}.zip"],
+    "assets": ["*.zip"],
     "tokenRef": "GITHUB_TOKEN"
   },
   "scripts": {
