@@ -4,7 +4,6 @@
   "permissions": [
     "https://github.com/*/*/pulls",
     "webNavigation",
-    "tabs",
     "storage"
   ],
   "browser_action": {
