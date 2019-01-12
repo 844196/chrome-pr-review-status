@@ -1,0 +1,23 @@
+{
+  "defaultSeverity": "error",
+  "rulesDirectory": [
+    "tslint-plugin-prettier"
+  ],
+  "extends": [
+    "tslint:recommended",
+    "tslint-config-prettier"
+  ],
+  "linterOptions": {
+    "exclude": [
+      "node_modules/**"
+    ]
+  },
+  "rules": {
+    "prettier": true,
+    "interface-name": false,
+    "object-literal-sort-keys": false,
+    "member-ordering": false,
+    "no-console": false,
+    "member-access": [true, "check-constructor", "check-parameter-property"]
+  }
+}

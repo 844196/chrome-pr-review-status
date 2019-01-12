@@ -1,0 +1,31 @@
+{
+  "name": "chrome-pr-review-status",
+  "version": "0.1.0",
+  "repository": "https://github.com/844196/chrome-pr-review-status",
+  "author": "Masaya Takeda <844196@gmail.com>",
+  "contributors": [
+    "Takuya Hayashi <qrbys@outlook.com>"
+  ],
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "@types/chrome": "^0.0.77",
+    "copy-webpack-plugin": "^4.6.0",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^1.15.3",
+    "ts-loader": "^5.3.3",
+    "tslint": "^5.12.1",
+    "tslint-config-prettier": "^1.17.0",
+    "tslint-plugin-prettier": "^2.0.1",
+    "typescript": "^3.2.2",
+    "webpack": "^4.28.1",
+    "webpack-cli": "^3.2.1"
+  },
+  "scripts": {
+    "build": "webpack -p",
+    "watch": "webpack --watch",
+    "ci": "npm-run-all --parallel ci:*",
+    "ci:type": "tsc --project . --noEmit",
+    "ci:lint:": "tslint --project . --format stylish"
+  }
+}
