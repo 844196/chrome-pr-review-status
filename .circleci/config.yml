@@ -1,0 +1,33 @@
+version: 2
+jobs:
+  checkout:
+    docker:
+      - image: circleci/node:9.4
+    steps:
+      - checkout
+      - restore_cache:
+          key: node-modules-{{ checksum "yarn.lock" }}
+      - run: yarn install
+      - save_cache:
+          key: node-modules-{{ checksum "yarn.lock" }}
+          paths:
+            - node_modules
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+  ci:
+    docker:
+      - image: circleci/node:9.4
+    steps:
+      - attach_workspace:
+          at: .
+      - run: yarn ci
+workflows:
+  version: 2
+  ci:
+    jobs:
+      - checkout
+      - ci:
+          requires:
+            - checkout
