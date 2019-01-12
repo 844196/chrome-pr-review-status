@@ -8,7 +8,7 @@ import { $, $all } from './util/query-selector';
 export class ReviewStatusInjector {
   private processed: boolean;
   private toggleButton: ToggleStatusButton;
-  private listRows: GithubIssueListRow[] = [];
+  private listRows: GithubIssueListRow[];
 
   public constructor(
     private readonly params: {
@@ -35,10 +35,6 @@ export class ReviewStatusInjector {
 
   public async invoke() {
     const processes = this.listRows.map(async (row) => {
-      if ($(row.dom, `.${STATUS_DOM_CLASSNAME}`)) {
-        return;
-      }
-
       // 要素追加によるガタツキを防ぐため、高さ固定のコンテナを予め挿入しておく
       const reviewStatus = new ReviewStatusComponent()
         .setHeight('105.312px')
