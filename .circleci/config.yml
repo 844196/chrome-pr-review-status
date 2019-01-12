@@ -23,11 +23,32 @@ jobs:
       - attach_workspace:
           at: .
       - run: yarn ci
+  release:
+    docker:
+      - image: circleci/node:9.4
+    steps:
+      - attach_workspace:
+          at: .
+      - run: yarn release ${CIRCLE_TAG}
 workflows:
   version: 2
-  ci:
+  ci-and-release:
     jobs:
-      - checkout
+      - checkout:
+          filters:
+            tags:
+              only: /.*/
       - ci:
           requires:
             - checkout
+          filters:
+            tags:
+              only: /.*/
+      - release:
+          requires:
+            - ci
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v[0-9](\.[0-9]){2}.*$/

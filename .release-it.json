@@ -1,0 +1,21 @@
+{
+  "git": {
+    "requireCleanWorkingDir": false,
+    "requireUpstream": false,
+    "commit": false,
+    "tag": false,
+    "push": false
+  },
+  "npm": {
+    "publish": false
+  },
+  "github": {
+    "release": true,
+    "releaseName": "${version}",
+    "assets": ["${name}-${version}.zip"],
+    "tokenRef": "GITHUB_TOKEN"
+  },
+  "scripts": {
+    "beforeStage": "yarn build && yarn cpx \"dist/**/*\" ${name}-${version} && yarn bestzip ${name}-${version}.zip ${name}-${version}/*"
+  }
+}
