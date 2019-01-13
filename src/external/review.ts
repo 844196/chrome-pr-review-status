@@ -1,5 +1,6 @@
 import { Review, ReviewCollection, ReviewStatus } from '../domain/review';
 import { Reviewer } from '../domain/reviewer';
+import * as Logger from '../util/logger';
 import { $ } from '../util/query-selector';
 
 export async function fetchReviews(url: string): Promise<ReviewCollection> {
@@ -16,7 +17,7 @@ export async function fetchReviews(url: string): Promise<ReviewCollection> {
         iconUrl: icon.src,
       };
     } catch (_) {
-      console.info('レビュワーの取得に失敗したため、レビュワー0人として扱う', { url, ele });
+      Logger.debug('レビュワーの取得に失敗したため、レビュワー0人として扱う', { url, ele });
       return;
     }
 

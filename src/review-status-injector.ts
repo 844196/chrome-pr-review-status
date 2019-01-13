@@ -3,6 +3,7 @@ import { ToggleStatusButton } from './component/toggle-status-button';
 import { ROW_BG_COLOR_MAP, STATUS_DOM_CLASSNAME, TOGGLE_STATUS_BUTTON_ID } from './constant';
 import { fetchReviews } from './external/review';
 import { GithubIssueListRow } from './util/github-issue-list-row';
+import * as Logger from './util/logger';
 import { $, $all } from './util/query-selector';
 
 export class ReviewStatusInjector {
@@ -19,6 +20,10 @@ export class ReviewStatusInjector {
   ) {
     const existedButton = $<HTMLButtonElement>(`#${TOGGLE_STATUS_BUTTON_ID}`);
     if (existedButton) {
+      Logger.debug('挿入済みボタンを検出', { existedButton });
+
+      // TODO: 挿入済みボタンが `fetching` 状態だった時の考慮
+
       this.toggleButton = ToggleStatusButton.fromDom(existedButton);
       this.processed = true;
     } else {
