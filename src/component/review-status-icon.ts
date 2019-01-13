@@ -1,13 +1,21 @@
-function icon(svg: string, colorClass: string) {
-  const span = document.createElement('span');
-  span.style.display = 'inline-block';
-  span.style.width = '20px';
-  span.style.height = '20px';
-  span.style.textAlign = 'center';
-  span.style.verticalAlign = 'middle';
-  span.innerHTML = svg;
-  span.classList.add(colorClass);
-  return span;
+import { AbstractComponent } from './abstract-component';
+
+export class ReviewStatusIcon extends AbstractComponent<HTMLSpanElement> {
+  public readonly dom: HTMLSpanElement;
+
+  public constructor(svg: string) {
+    super();
+
+    const dom = document.createElement('span');
+    dom.style.display = 'inline-block';
+    dom.style.textAlign = 'center';
+    dom.style.verticalAlign = 'middle';
+    dom.innerHTML = svg;
+
+    this.dom = dom;
+
+    this.setWidth('20px').setHeight('20px');
+  }
 }
 
 /**
@@ -41,8 +49,8 @@ const checkSvg = `<svg class="octicon octicon-check" viewBox="0 0 12 16" version
 const primitiveDotSvg = `<svg class="octicon octicon-primitive-dot" viewBox="0 0 8 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M0 8c0-2.2 1.8-4 4-4s4 1.8 4 4-1.8 4-4 4-4-1.8-4-4z"></path></svg>`;
 
 export const icons = {
-  leftComments: () => icon(commentSvg, 'text-gray'),
-  requestedChanges: () => icon(xSvg, 'text-red'),
-  approved: () => icon(checkSvg, 'text-green'),
-  unreviewed: () => icon(primitiveDotSvg, 'bg-pending'),
+  leftComments: () => new ReviewStatusIcon(commentSvg).addClass('text-gray'),
+  requestedChanges: () => new ReviewStatusIcon(xSvg).addClass('text-red'),
+  approved: () => new ReviewStatusIcon(checkSvg).addClass('text-green'),
+  unreviewed: () => new ReviewStatusIcon(primitiveDotSvg).addClass('bg-pending'),
 };

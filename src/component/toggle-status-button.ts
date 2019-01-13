@@ -5,11 +5,11 @@ import { AbstractComponent } from './abstract-component';
 export type State = 'fetching' | 'awaitingShow' | 'awaitingHide';
 
 export class ToggleStatusButton extends AbstractComponent<HTMLButtonElement> {
-  private get state() {
+  public get state() {
     return this.dom.dataset.state as State;
   }
 
-  private set state(value: State) {
+  public set state(value: State) {
     this.dom.dataset.state = value;
   }
 

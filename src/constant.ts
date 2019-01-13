@@ -1,6 +1,6 @@
 import { ReviewStatus } from './domain/review';
 
-export const ROW_BG_COLOR_MAP: { [P in Exclude<ReviewStatus, 'not reviewer'>]: string } = {
+export const ROW_BG_COLOR_MAP: { [_ in Exclude<ReviewStatus, 'not reviewer'>]: string } = {
   unreviewed: '#f3f3b9',
   approved: '#b9f3d2',
   leftComments: '#e2e2e2',
