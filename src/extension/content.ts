@@ -7,7 +7,11 @@ import { $, $all } from '../util/query-selector';
 const isDisplayDefault = Config.get('isDisplayDefault');
 const enableBackgroundColor = Config.get('enableBackgroundColor');
 
-const username = Promise.resolve(`@${$<HTMLMetaElement>('meta[name=user-login]')!.content}`);
+const loginUsername = $<HTMLMetaElement>('meta[name=user-login]')!.content;
+const username =
+  ENVIRONMENT === 'development'
+    ? Config.get('debugUsername').then((debugUsername) => (debugUsername === '' ? loginUsername : debugUsername))
+    : Promise.resolve(loginUsername);
 
 const listRows = $all<HTMLDivElement>('.js-issue-row').map<GithubIssueListRow>((row) => {
   return {

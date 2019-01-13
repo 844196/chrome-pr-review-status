@@ -3,6 +3,7 @@ import { Config } from '../domain/config';
 export const defaults: Config = {
   isDisplayDefault: false,
   enableBackgroundColor: true,
+  debugUsername: '',
 };
 
 export async function get<K extends keyof Config>(key: K): Promise<Config[K]> {

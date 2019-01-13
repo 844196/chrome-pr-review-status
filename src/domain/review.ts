@@ -12,7 +12,7 @@ export class ReviewCollection {
 
   public getStatusByReviewerName(reviewerName: string) {
     for (const review of this.container) {
-      if (review.reviewer.name === reviewerName) {
+      if (review.reviewer.name === `@${reviewerName}`) {
         return review.status;
       }
     }
