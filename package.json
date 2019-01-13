@@ -26,8 +26,10 @@
     "webpack-cli": "^3.2.1"
   },
   "scripts": {
-    "build": "webpack -p",
-    "watch": "webpack --watch",
+    "build": "yarn build:prod",
+    "build:prod": "cross-env NODE_ENV=production webpack",
+    "build:dev": "cross-env NODE_ENV=development webpack",
+    "watch": "yarn build:dev --watch",
     "zip": "shx cp -R dist ${NAME} && bestzip ${NAME}.zip ${NAME}/* && shx rm -rf ${NAME}",
     "release": "release-it",
     "ci": "npm-run-all --parallel ci:*",

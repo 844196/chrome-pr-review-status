@@ -1,10 +1,10 @@
 const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
+const ENV = process.env.NODE_ENV;
 
 const extension = (path) => `./src/extension/${path}`;
 
 module.exports = {
-  mode: 'development',
   entry: {
     background: extension('background.ts'),
     content: extension('content.ts'),
@@ -46,3 +46,9 @@ module.exports = {
     ]),
   ],
 };
+
+module.exports.mode = ENV;
+
+if (ENV === 'development') {
+  module.exports.devtool = 'inline-source-map';
+}
