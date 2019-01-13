@@ -1,5 +1,6 @@
 const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
+const DefinePlugin = require('webpack').DefinePlugin;
 const ENV = process.env.NODE_ENV;
 
 const extension = (path) => `./src/extension/${path}`;
@@ -44,6 +45,9 @@ module.exports = {
         to: 'popup',
       },
     ]),
+    new DefinePlugin({
+      ENVIRONMENT: JSON.stringify(ENV),
+    }),
   ],
 };
 
