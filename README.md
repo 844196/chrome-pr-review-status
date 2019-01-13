@@ -19,4 +19,4 @@ GithubのPull request一覧ページに _完全な_ レビュー状況を表示�
 [latest-version-badge]: https://img.shields.io/github/release/844196/chrome-pr-review-status.svg
 [latest-version]: https://github.com/844196/chrome-pr-review-status/releases/latest
 [build-badge]: https://circleci.com/gh/844196/chrome-pr-review-status.svg?style=shield
-[build-history]: (https://circleci.com/gh/844196/chrome-pr-review-status)
+[build-history]: https://circleci.com/gh/844196/chrome-pr-review-status
