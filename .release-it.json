@@ -12,10 +12,12 @@
   "github": {
     "release": true,
     "releaseName": "${version}",
-    "assets": ["*.zip"],
+    "assets": ["tmp_release/*.zip"],
     "tokenRef": "GITHUB_TOKEN"
   },
   "scripts": {
-    "beforeStage": "yarn build && yarn cpx \"dist/**/*\" ${name}-${version} && yarn bestzip ${name}-${version}.zip ${name}-${version}/*"
+    "afterBump": "yarn build",
+    "beforeStage": "yarn cross-env NAME=${name}-${version} yarn zip && yarn shx mkdir -p tmp_release && yarn shx mv ${name}-${version}.zip tmp_release/",
+    "afterRelease": "yarn shx rm -rf tmp_release"
   }
 }
