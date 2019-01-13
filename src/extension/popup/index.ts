@@ -1,47 +1,51 @@
+import { Config as IConfig } from '../../domain/config';
 import * as Config from '../../external/config';
 
-type StringBoolean = 'true' | 'false';
+type SubType<T, U> = Pick<T, { [K in keyof T]: T[K] extends U ? K : never }[keyof T]>;
 
-const text = (value: string) => document.createTextNode(value);
-const radio = (name: string, value: StringBoolean) => {
+const text = async (value: string) => document.createTextNode(value);
+const hr = async () => document.createElement('hr');
+const radio = async (name: string, value: 'true' | 'false', on: () => void) => {
   const dom = document.createElement('input');
   dom.type = 'radio';
   dom.name = name;
   dom.value = value;
+  dom.addEventListener('change', on);
   return dom;
 };
+const radioPair = async <K extends keyof SubType<IConfig, boolean>>(key: K) => {
+  const radioTrue = await radio(key, 'true', () => Config.set(key, true));
+  const radioFalse = await radio(key, 'false', () => Config.set(key, false));
 
-class BooleanPairRadio {
-  public readonly dom: HTMLDivElement;
-
-  public constructor(name: string, initial: boolean, on: (value: boolean) => void) {
-    const radioTrue = radio(name, 'true');
-    const radioFalse = radio(name, 'false');
-
-    if (initial) {
-      radioTrue.checked = true;
-    } else {
-      radioFalse.checked = true;
-    }
-
-    radioTrue.addEventListener('change', () => on(true));
-    radioFalse.addEventListener('change', () => on(false));
-
-    const container = document.createElement('div');
-    container.append(text(`${name}:`), radioTrue, text('ON'), text(' '), radioFalse, text('OFF'));
-
-    this.dom = container;
+  if (await Config.get(key)) {
+    radioTrue.checked = true;
+  } else {
+    radioFalse.checked = true;
   }
-}
+
+  const container = document.createElement('div');
+  container.append(await text(`${key}:`), radioTrue, await text('ON'), await text(' '), radioFalse, await text('OFF'));
+
+  return container;
+};
+const textField = async <K extends keyof SubType<IConfig, string>>(key: K) => {
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.name = key;
+  input.value = await Config.get(key);
+  input.addEventListener('input', function() {
+    Config.set(key, this.value);
+  });
+
+  const container = document.createElement('div');
+  container.append(await text(`${key}:`), input);
+  return container;
+};
 
 (async () => {
-  document.body.append(
-    new BooleanPairRadio('isDisplayDefault', await Config.get('isDisplayDefault'), (value) =>
-      Config.set('isDisplayDefault', value),
-    ).dom,
-    document.createElement('hr'),
-    new BooleanPairRadio('enableBackgroundColor', await Config.get('enableBackgroundColor'), (value) =>
-      Config.set('enableBackgroundColor', value),
-    ).dom,
-  );
+  const components = [radioPair('isDisplayDefault'), hr(), radioPair('enableBackgroundColor')];
+  if (ENVIRONMENT === 'development') {
+    components.push(hr(), textField('debugUsername'));
+  }
+  document.body.append(...(await Promise.all(components)));
 })();
