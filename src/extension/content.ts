@@ -3,6 +3,7 @@ import { STATUS_DOM_CLASSNAME, TOGGLE_STATUS_BUTTON_ID } from '../constant';
 import * as Config from '../external/config';
 import { GithubIssueListRow, ReviewStatusInjector } from '../review-status-injector';
 import { $, $all } from '../util/query-selector';
+import { SSOT } from '../util/ssot';
 
 const isDisplayDefault = Config.get('isDisplayDefault');
 const enableBackgroundColor = Config.get('enableBackgroundColor');
@@ -42,12 +43,23 @@ if (insertedToggleButtonDom) {
   $('.subnav')!.append(toggleButton.dom);
 }
 
+const injectionProgress = new SSOT(0);
+
 const injector = new ReviewStatusInjector({
   username,
   listRows,
-  toggleButton,
   isDisplayDefault,
   enableBackgroundColor,
+  injectionProgress,
+});
+
+injectionProgress.onChange((progress) => {
+  toggleButton.updateFetchProgress(progress, listRows.length);
+});
+injector.state.onChange(async (state) => {
+  if (state === 'done') {
+    toggleButton.changeState((await isDisplayDefault) ? 'awaitingHide' : 'awaitingShow');
+  }
 });
 
 const isFirstRender = insertedToggleButtonDom === null;

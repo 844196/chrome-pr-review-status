@@ -1,8 +1,8 @@
 import { AbstractComponent } from './component/abstract-component';
 import { ReviewStatus as ReviewStatusComponent } from './component/review-status';
-import { ToggleStatusButton } from './component/toggle-status-button';
 import { ROW_BG_COLOR_MAP, STATUS_DOM_CLASSNAME } from './constant';
 import { fetchReviews } from './external/review';
+import { SSOT } from './util/ssot';
 
 export interface GithubIssueListRow {
   readonly pullRequestPageUrl: string;
@@ -11,17 +11,21 @@ export interface GithubIssueListRow {
 }
 
 export class ReviewStatusInjector {
+  public readonly state = new SSOT<'initialized' | 'doing' | 'done'>('initialized');
+
   public constructor(
     private readonly params: {
       username: Promise<string>;
       isDisplayDefault: Promise<boolean>;
       enableBackgroundColor: Promise<boolean>;
       listRows: GithubIssueListRow[];
-      toggleButton: ToggleStatusButton;
+      injectionProgress: SSOT<number>;
     },
   ) {}
 
   public async invoke() {
+    this.state.change('doing');
+
     const processes = this.params.listRows.map(async (row) => {
       // 要素追加によるガタツキを防ぐため、予め挿入しておく
       // 高さはRowの実装側に持つ
@@ -40,9 +44,10 @@ export class ReviewStatusInjector {
     });
 
     let done = 0;
-    processes.forEach((p) => p.then(() => this.params.toggleButton.updateFetchProgress(++done, processes.length)));
+    processes.forEach((p) => p.then(() => this.params.injectionProgress.change(++done)));
 
     await Promise.all(processes);
-    this.params.toggleButton.changeState((await this.params.isDisplayDefault) ? 'awaitingHide' : 'awaitingShow');
+    this.state.change('done');
+    this.params.injectionProgress.change(0);
   }
 }
