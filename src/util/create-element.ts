@@ -26,6 +26,7 @@ const isNodeChildren = (v: any): v is NodeChildren => {
 };
 
 export function h<T extends keyof NameMap>(tagName: T, arg2?: NodeData<NameMap[T]> | NodeChildren): NameMap[T];
+export function h<T extends keyof NameMap>(tagName: T, arg2: NodeData<NameMap[T]>, arg3?: NodeChildren): NameMap[T];
 export function h<T extends keyof NameMap>(
   tagName: T,
   arg2?: NodeData<NameMap[T]> | NodeChildren,
