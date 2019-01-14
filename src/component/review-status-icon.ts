@@ -1,3 +1,4 @@
+import { h } from '../util/create-element';
 import { AbstractComponent } from './abstract-component';
 
 export class ReviewStatusIcon extends AbstractComponent<HTMLSpanElement> {
@@ -6,15 +7,18 @@ export class ReviewStatusIcon extends AbstractComponent<HTMLSpanElement> {
   public constructor(svg: string) {
     super();
 
-    const dom = document.createElement('span');
-    dom.style.display = 'inline-block';
-    dom.style.textAlign = 'center';
-    dom.style.verticalAlign = 'middle';
-    dom.innerHTML = svg;
-
-    this.dom = dom;
-
-    this.setWidth('20px').setHeight('20px');
+    this.dom = h('span', {
+      props: {
+        innerHTML: svg,
+      },
+      style: {
+        display: 'inline-block',
+        textAlign: 'center',
+        verticalAlign: 'middle',
+        width: '20px',
+        height: '20px',
+      },
+    });
   }
 }
 

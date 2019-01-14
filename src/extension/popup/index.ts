@@ -1,51 +1,44 @@
 import { Config as IConfig } from '../../domain/config';
 import * as Config from '../../external/config';
+import { h } from '../../util/create-element';
 
-type SubType<T, U> = Pick<T, { [K in keyof T]: T[K] extends U ? K : never }[keyof T]>;
+const radioPair = async <K extends keyof SubType<IConfig, boolean>>(configName: K) => {
+  const radio = (checked: boolean, onChange: () => void) =>
+    h('input', {
+      props: {
+        type: 'radio',
+        name: configName,
+        checked,
+      },
+      on: {
+        change: onChange,
+      },
+    });
 
-const text = async (value: string) => document.createTextNode(value);
-const hr = async () => document.createElement('hr');
-const radio = async (name: string, value: 'true' | 'false', on: () => void) => {
-  const dom = document.createElement('input');
-  dom.type = 'radio';
-  dom.name = name;
-  dom.value = value;
-  dom.addEventListener('change', on);
-  return dom;
+  const initial = await Config.get(configName);
+  const radioTrue = radio(initial === true, () => Config.set(configName, true));
+  const radioFalse = radio(initial === false, () => Config.set(configName, false));
+
+  return h('div', [`${configName}: `, h('label', [radioTrue, 'ON']), ' ', h('label', [radioFalse, 'OFF'])]);
 };
-const radioPair = async <K extends keyof SubType<IConfig, boolean>>(key: K) => {
-  const radioTrue = await radio(key, 'true', () => Config.set(key, true));
-  const radioFalse = await radio(key, 'false', () => Config.set(key, false));
 
-  if (await Config.get(key)) {
-    radioTrue.checked = true;
-  } else {
-    radioFalse.checked = true;
-  }
-
-  const container = document.createElement('div');
-  container.append(await text(`${key}:`), radioTrue, await text('ON'), await text(' '), radioFalse, await text('OFF'));
-
-  return container;
-};
-const textField = async <K extends keyof SubType<IConfig, string>>(key: K) => {
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.name = key;
-  input.value = await Config.get(key);
-  input.addEventListener('input', function() {
-    Config.set(key, this.value);
-  });
-
-  const container = document.createElement('div');
-  container.append(await text(`${key}:`), input);
-  return container;
-};
+const textField = async <K extends keyof SubType<IConfig, string>>(configName: K) =>
+  h('div', [
+    `${configName}: `,
+    h('input', {
+      props: { type: 'text', value: await Config.get(configName) },
+      on: {
+        input() {
+          Config.set(configName, this.value);
+        },
+      },
+    }),
+  ]);
 
 (async () => {
-  const components = [radioPair('isDisplayDefault'), hr(), radioPair('enableBackgroundColor')];
+  const components = [radioPair('isDisplayDefault'), h('hr'), radioPair('enableBackgroundColor')];
   if (ENVIRONMENT === 'development') {
-    components.push(hr(), textField('debugUsername'));
+    components.push(h('hr'), textField('debugUsername'));
   }
   document.body.append(...(await Promise.all(components)));
 })();

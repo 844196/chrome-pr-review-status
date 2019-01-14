@@ -1,11 +1,15 @@
 import { Review, ReviewCollection, ReviewStatus } from '../domain/review';
 import { Reviewer } from '../domain/reviewer';
+import { h } from '../util/create-element';
 import * as Logger from '../util/logger';
 import { $ } from '../util/query-selector';
 
 export async function fetchReviews(url: string): Promise<ReviewCollection> {
-  const page = document.createElement('html');
-  page.innerHTML = await (await fetch(url, { credentials: 'include' })).text();
+  const page = h('html', {
+    props: {
+      innerHTML: await (await fetch(url, { credentials: 'include' })).text(),
+    },
+  });
 
   const reviews: Review[] = [];
   Array.from($<HTMLSpanElement>(page, '.discussion-sidebar-item .css-truncate')!.children).forEach((ele) => {

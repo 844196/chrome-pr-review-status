@@ -1,4 +1,5 @@
 import { STATUS_DOM_CLASSNAME, TOGGLE_STATUS_BUTTON_ID } from '../constant';
+import { h } from '../util/create-element';
 import { $all } from '../util/query-selector';
 import { AbstractComponent } from './abstract-component';
 
@@ -62,9 +63,12 @@ export class ToggleStatusButton extends AbstractComponent<HTMLButtonElement> {
   }
 
   public static make(initialState: State) {
-    const dom = document.createElement('button');
-    dom.id = TOGGLE_STATUS_BUTTON_ID;
-    dom.dataset.state = initialState;
+    const dom = h('button', {
+      props: {
+        id: TOGGLE_STATUS_BUTTON_ID,
+        'data-state': initialState,
+      },
+    });
     const self = new this(dom);
     return self;
   }

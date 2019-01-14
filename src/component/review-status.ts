@@ -1,11 +1,12 @@
 import { STATUS_DOM_ROW_ORDER } from '../constant';
 import { ReviewCollection } from '../domain/review';
+import { h } from '../util/create-element';
 import { AbstractComponent } from './abstract-component';
 import { icons } from './review-status-icon';
 import { UserIcon } from './user-icon';
 
 export class ReviewStatus extends AbstractComponent<HTMLDivElement> {
-  public readonly dom: HTMLDivElement = document.createElement('div');
+  public readonly dom: HTMLDivElement = h('div');
 
   public constructor() {
     super();
@@ -25,9 +26,7 @@ export class ReviewStatus extends AbstractComponent<HTMLDivElement> {
       }
       const statusIcon = icons[status]().dom;
       const reviewerIcons = reviewers.map(({ iconUrl }) => new UserIcon(iconUrl).dom);
-      const row = document.createElement('div');
-      row.append(statusIcon, ...reviewerIcons);
-      this.dom.append(row);
+      this.dom.append(h('div', [statusIcon, ...reviewerIcons]));
     }
   }
 }
