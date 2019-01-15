@@ -1,6 +1,11 @@
 export abstract class AbstractComponent<T extends HTMLElement> {
   public abstract dom: T;
 
+  public setId(id: string): this {
+    this.dom.id = id;
+    return this;
+  }
+
   public addClass(...classes: string[]): this {
     this.dom.classList.add(...classes);
     return this;
