@@ -6,9 +6,7 @@ import { icons } from './review-status-icon';
 import { UserIcon } from './user-icon';
 
 export class ReviewStatus extends AbstractComponent<HTMLDivElement> {
-  public readonly dom: HTMLDivElement = h('div');
-
-  public constructor() {
+  public constructor(public readonly dom: HTMLDivElement) {
     super();
   }
 
@@ -18,6 +16,10 @@ export class ReviewStatus extends AbstractComponent<HTMLDivElement> {
   }
 
   public fillRows(reviews: ReviewCollection) {
+    while (this.dom.firstChild) {
+      this.dom.removeChild(this.dom.firstChild);
+    }
+
     const reviewersByStatus = reviews.groupingReviewerByStatus();
     for (const status of STATUS_DOM_ROW_ORDER) {
       const reviewers = reviewersByStatus[status];

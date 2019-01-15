@@ -8,17 +8,22 @@ import { $, $all } from '../util/query-selector';
 
 class PullRequestListRow implements IPullRequestListRow {
   public readonly pullRequestPageUrl: string;
-  private readonly reviewStatusColumn = new ReviewStatusColumn();
+  private readonly reviewStatusColumn: ReviewStatusColumn;
 
   public constructor(private readonly dom: HTMLDivElement) {
     this.pullRequestPageUrl = $<HTMLAnchorElement>(dom, 'a.h4')!.href;
 
-    this.reviewStatusColumn.setHeight('105.312px').addClass('col-2', 'p-2', 'float-left', STATUS_DOM_CLASSNAME);
-
-    const inserted = $(this.dom, `.${STATUS_DOM_CLASSNAME}`);
-    if (inserted) {
-      inserted.parentNode!.replaceChild(this.reviewStatusColumn.dom, inserted);
-    } else {
+    const insertedColumnDom = $<HTMLDivElement>(this.dom, `.${STATUS_DOM_CLASSNAME}`);
+    this.reviewStatusColumn = new ReviewStatusColumn(
+      insertedColumnDom ||
+        h('div', {
+          style: {
+            height: '105.312px',
+          },
+          class: [STATUS_DOM_CLASSNAME, 'col-2', 'p-2', 'float-left'],
+        }),
+    );
+    if (!insertedColumnDom) {
       const title = $(this.dom, '.col-9')!;
       title.classList.replace('col-9', 'col-7');
       title.parentNode!.insertBefore(this.reviewStatusColumn.dom, title.nextSibling);
@@ -62,5 +67,10 @@ export class PullRequestListPage {
     }
 
     this.rows = $all<HTMLDivElement>('.js-issue-row').map((rowDom) => new PullRequestListRow(rowDom));
+  }
+
+  get alreadyProcessed() {
+    const buttonState = this.button.state.value;
+    return buttonState === 'awaitingHide' || buttonState === 'awaitingShow';
   }
 }

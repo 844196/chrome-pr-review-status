@@ -17,6 +17,10 @@ import { SSOT } from '../util/ssot';
     isDisplayReviewStatus.onChange((isDisplay) => row.toggleDisplayReviewStatusColumn(isDisplay));
   });
 
+  if (page.alreadyProcessed) {
+    return;
+  }
+
   let username = page.loginUsername;
   if (ENVIRONMENT === 'development') {
     const debugUsername = (await config.debugUsername).value;
