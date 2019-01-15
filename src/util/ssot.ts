@@ -1,9 +1,13 @@
 import { TypedEvent, TypedEventHandler } from './typed-event';
 
 export class SSOT<T> {
-  private event = new TypedEvent<T>();
+  private readonly event = new TypedEvent<T>();
 
-  public constructor(private self: T) {}
+  public constructor(private self: T, handler?: TypedEventHandler<T>) {
+    if (handler) {
+      this.onChange(handler);
+    }
+  }
 
   get value() {
     return this.self;
@@ -11,6 +15,7 @@ export class SSOT<T> {
 
   public onChange(handler: TypedEventHandler<T>) {
     this.event.on(handler);
+    return this;
   }
 
   public change(value: T) {

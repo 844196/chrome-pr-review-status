@@ -1,13 +1,13 @@
-import { Config as IConfig } from '../../domain/config';
 import * as Config from '../../external/config';
 import { h } from '../../util/create-element';
+import { SSOT } from '../../util/ssot';
 
-const radioPair = async <K extends keyof SubType<IConfig, boolean>>(configName: K) => {
+const radioPair = (name: string, ssot: SSOT<boolean>) => {
   const radio = (checked: boolean, onChange: () => void) =>
     h('input', {
       props: {
         type: 'radio',
-        name: configName,
+        name,
         checked,
       },
       on: {
@@ -15,30 +15,49 @@ const radioPair = async <K extends keyof SubType<IConfig, boolean>>(configName: 
       },
     });
 
-  const initial = await Config.get(configName);
-  const radioTrue = radio(initial === true, () => Config.set(configName, true));
-  const radioFalse = radio(initial === false, () => Config.set(configName, false));
+  const initial = ssot.value;
+  const radioTrue = radio(initial === true, () => ssot.change(true));
+  const radioFalse = radio(initial === false, () => ssot.change(false));
 
-  return h('div', [`${configName}: `, h('label', [radioTrue, 'ON']), ' ', h('label', [radioFalse, 'OFF'])]);
+  return h('div', [`${name}: `, h('label', [radioTrue, 'ON']), ' ', h('label', [radioFalse, 'OFF'])]);
 };
 
-const textField = async <K extends keyof SubType<IConfig, string>>(configName: K) =>
+const textField = (name: string, ssot: SSOT<string>) =>
   h('div', [
-    `${configName}: `,
+    `${name}: `,
     h('input', {
-      props: { type: 'text', value: await Config.get(configName) },
+      props: {
+        type: 'text',
+        value: ssot.value,
+      },
       on: {
         input() {
-          Config.set(configName, this.value);
+          ssot.change(this.value);
         },
       },
     }),
   ]);
 
 (async () => {
-  const components = [radioPair('isDisplayDefault'), h('hr'), radioPair('enableBackgroundColor')];
+  const components = [
+    radioPair(
+      'isDisplayDefault',
+      new SSOT(await Config.get('isDisplayDefault'), (changed) => Config.set('isDisplayDefault', changed)),
+    ),
+    h('hr'),
+    radioPair(
+      'enableBackgroundColor',
+      new SSOT(await Config.get('enableBackgroundColor'), (changed) => Config.set('enableBackgroundColor', changed)),
+    ),
+  ];
   if (ENVIRONMENT === 'development') {
-    components.push(h('hr'), textField('debugUsername'));
+    components.push(
+      h('hr'),
+      textField(
+        'debugUsername',
+        new SSOT(await Config.get('debugUsername'), (changed) => Config.set('debugUsername', changed)),
+      ),
+    );
   }
-  document.body.append(...(await Promise.all(components)));
+  document.body.append(...components);
 })();
