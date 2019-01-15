@@ -1,19 +1,21 @@
-import { Config } from '../domain/config';
+import { Config as IConfig, ConfigValue } from '../domain/config';
+import { SSOT } from '../util/ssot';
 
-export const defaults: Config = {
+const defaults: ConfigValue = {
   isDisplayDefault: false,
   enableBackgroundColor: true,
   debugUsername: '',
 };
 
-export async function get<K extends keyof Config>(key: K): Promise<Config[K]> {
-  return new Promise((ok) => {
-    chrome.storage.local.get(defaults, (cfg) => ok(cfg[key]));
-  });
-}
+const bind = async <T extends keyof ConfigValue>(key: T) => {
+  const value = await new Promise<ConfigValue[T]>((ok) =>
+    chrome.storage.local.get({ [key]: defaults[key] }, (map) => ok(map[key])),
+  );
+  return new SSOT(value, (changed) => chrome.storage.local.set({ [key]: changed }));
+};
 
-export async function set<K extends keyof Config>(key: K, value: Config[K]): Promise<void> {
-  return new Promise((ok) => {
-    chrome.storage.local.set({ [key]: value }, ok);
-  });
-}
+export const config: IConfig = {
+  isDisplayDefault: bind('isDisplayDefault'),
+  enableBackgroundColor: bind('enableBackgroundColor'),
+  debugUsername: bind('debugUsername'),
+};

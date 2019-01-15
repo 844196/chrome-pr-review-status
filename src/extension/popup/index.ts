@@ -1,4 +1,4 @@
-import * as Config from '../../external/config';
+import { config } from '../../external/config';
 import { h } from '../../util/create-element';
 import { SSOT } from '../../util/ssot';
 
@@ -40,24 +40,12 @@ const textField = (name: string, ssot: SSOT<string>) =>
 
 (async () => {
   const components = [
-    radioPair(
-      'isDisplayDefault',
-      new SSOT(await Config.get('isDisplayDefault'), (changed) => Config.set('isDisplayDefault', changed)),
-    ),
+    radioPair('isDisplayDefault', await config.isDisplayDefault),
     h('hr'),
-    radioPair(
-      'enableBackgroundColor',
-      new SSOT(await Config.get('enableBackgroundColor'), (changed) => Config.set('enableBackgroundColor', changed)),
-    ),
+    radioPair('enableBackgroundColor', await config.enableBackgroundColor),
   ];
   if (ENVIRONMENT === 'development') {
-    components.push(
-      h('hr'),
-      textField(
-        'debugUsername',
-        new SSOT(await Config.get('debugUsername'), (changed) => Config.set('debugUsername', changed)),
-      ),
-    );
+    components.push(h('hr'), textField('debugUsername', await config.debugUsername));
   }
   document.body.append(...components);
 })();
