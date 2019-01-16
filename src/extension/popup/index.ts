@@ -19,6 +19,11 @@ const radioPair = (name: string, ssot: SSOT<boolean>) => {
   const radioTrue = radio(initial === true, () => ssot.change(true));
   const radioFalse = radio(initial === false, () => ssot.change(false));
 
+  ssot.onChange((changed) => {
+    radioTrue.checked = changed === true;
+    radioFalse.checked = changed === false;
+  });
+
   return h('div', [`${name}: `, h('label', [radioTrue, 'ON']), ' ', h('label', [radioFalse, 'OFF'])]);
 };
 
