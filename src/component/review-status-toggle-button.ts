@@ -1,6 +1,6 @@
+import * as octicons from 'octicons';
 import { SSOT } from '../util/ssot';
 import { TypedEvent } from '../util/typed-event';
-import { AbstractComponent } from './abstract-component';
 
 type ButtonState = 'initialized' | 'fetching' | 'awaitingHide' | 'awaitingShow';
 
@@ -10,17 +10,15 @@ const isButtonState = (v: any): v is ButtonState =>
 const textMap: { [_ in ButtonState]: string } = {
   initialized: 'Please wait...',
   fetching: 'Fetching...',
-  awaitingHide: 'Hide review status',
-  awaitingShow: 'Show review status',
+  awaitingHide: `${octicons.fold.toSVG()}&nbsp;Hide review status`,
+  awaitingShow: `${octicons.unfold.toSVG()}&nbsp;Show review status`,
 };
 
-export class ReviewStatusToggleButton extends AbstractComponent<HTMLButtonElement> {
+export class ReviewStatusToggleButton {
   public readonly click = new TypedEvent<boolean>();
   private readonly state: SSOT<ButtonState>;
 
   public constructor(public readonly dom: HTMLButtonElement) {
-    super();
-
     const parsedState = this.dom.dataset.state;
     this.state = new SSOT<ButtonState>(isButtonState(parsedState) ? parsedState : 'initialized')
       .onChange((state) => {
@@ -28,7 +26,7 @@ export class ReviewStatusToggleButton extends AbstractComponent<HTMLButtonElemen
       })
       .onChangeWithRun((state) => {
         this.dom.disabled = state === 'initialized' || state === 'fetching';
-        this.dom.textContent = textMap[state];
+        this.dom.innerHTML = textMap[state];
       });
 
     this.dom.addEventListener('click', () => {
@@ -48,7 +46,7 @@ export class ReviewStatusToggleButton extends AbstractComponent<HTMLButtonElemen
 
   public updateProgress(current: number, all: number) {
     if (this.state.value === 'fetching') {
-      this.dom.textContent = `Fetching... (${current}/${all})`;
+      this.dom.innerHTML = `Fetching... (${current}/${all})`;
     }
   }
 

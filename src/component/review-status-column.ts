@@ -1,14 +1,10 @@
+import * as octicons from 'octicons';
 import { STATUS_DOM_ROW_ORDER } from '../constant';
-import { ReviewCollection } from '../domain/review';
+import { ReviewCollection, ReviewStatus } from '../domain/review';
 import { h } from '../util/create-element';
-import { AbstractComponent } from './abstract-component';
-import { icons } from './review-status-icon';
-import { UserIcon } from './user-icon';
 
-export class ReviewStatusColumn extends AbstractComponent<HTMLDivElement> {
-  public constructor(public readonly dom: HTMLDivElement) {
-    super();
-  }
+export class ReviewStatusColumn {
+  public constructor(public readonly dom: HTMLDivElement) {}
 
   public fillRows(reviews: ReviewCollection) {
     while (this.dom.firstChild) {
@@ -21,9 +17,62 @@ export class ReviewStatusColumn extends AbstractComponent<HTMLDivElement> {
       if (!reviewers) {
         continue;
       }
-      const statusIcon = icons[status]().dom;
-      const reviewerIcons = reviewers.map(({ iconUrl }) => new UserIcon(iconUrl).dom);
-      this.dom.append(h('div', [statusIcon, ...reviewerIcons]));
+      this.dom.append(h('div', [statusIcon(status), ...reviewers.map(({ iconUrl }) => userIcon(iconUrl))]));
     }
   }
 }
+
+const userIcon = (src: string) =>
+  h('img', {
+    props: {
+      src,
+    },
+    class: 'avatar',
+    style: {
+      marginLeft: '2px',
+      marginRight: '2px',
+      width: '20px',
+      height: '20px',
+    },
+  });
+
+const statusIcon = (status: Exclude<ReviewStatus, 'notReviewer'>) => {
+  const { svg, colorClass } = statusIconMap[status];
+  return h('span', {
+    props: {
+      innerHTML: svg,
+    },
+    class: colorClass,
+    style: {
+      display: 'inline-block',
+      textAlign: 'center',
+      verticalAlign: 'middle',
+      width: '20px',
+      height: '20px',
+    },
+  });
+};
+
+const statusIconMap: {
+  [P in Exclude<ReviewStatus, 'notReviewer'>]: {
+    svg: string;
+    colorClass: string;
+  }
+} = {
+  leftComments: {
+    svg: octicons.comment.toSVG(),
+    colorClass: 'text-gray',
+  },
+  requestedChanges: {
+    svg: octicons.x.toSVG(),
+    colorClass: 'text-red',
+  },
+  approved: {
+    svg: octicons.check.toSVG(),
+    colorClass: 'text-green',
+  },
+  unreviewed: {
+    svg: octicons['primitive-dot'].toSVG(),
+    colorClass: 'bg-pending',
+  },
+};
