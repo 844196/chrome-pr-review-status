@@ -1,10 +1,12 @@
 import { Reviewer } from './reviewer';
 
-export type ReviewStatus = 'unreviewed' | 'leftComments' | 'requestedChanges' | 'approved';
+export type ReviewStatus = 'notReviewer' | 'unreviewed' | 'leftComments' | 'requestedChanges' | 'approved';
+export const isReviewStatus = (v: any): v is ReviewStatus =>
+  ['notReviewer', 'unreviewed', 'leftComments', 'requestedChanges', 'approved'].includes(v);
 
 export interface Review {
   reviewer: Reviewer;
-  status: ReviewStatus;
+  status: Exclude<ReviewStatus, 'notReviewer'>;
 }
 
 export class ReviewCollection {
@@ -16,7 +18,7 @@ export class ReviewCollection {
         return review.status;
       }
     }
-    return 'not reviewer';
+    return 'notReviewer';
   }
 
   public groupingReviewerByStatus() {

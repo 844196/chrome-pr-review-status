@@ -18,6 +18,12 @@ export class SSOT<T> {
     return this;
   }
 
+  public onChangeWithRun(handler: TypedEventHandler<T>) {
+    handler(this.value);
+    this.onChange(handler);
+    return this;
+  }
+
   public change(value: T) {
     this.self = value;
     this.event.emit(value);

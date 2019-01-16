@@ -1,23 +1,11 @@
-import { ROW_BG_COLOR_MAP } from '../constant';
-import { PullRequestListRow } from '../domain/pr-list-row';
+import { PullRequestListPage } from '../domain/pr-list-page';
 import { fetchReviews } from '../external/review';
 import { SSOT } from '../util/ssot';
 
-export async function injectReviewStatus(
-  username: string,
-  enableBackgroundColor: boolean,
-  rows: PullRequestListRow[],
-  injectionProgress: SSOT<number>,
-) {
-  const processes = rows.map(async (row) => {
+export async function injectReviewStatus(page: PullRequestListPage, injectionProgress: SSOT<number>) {
+  const processes = page.rows.map(async (row) => {
     const reviews = await fetchReviews(row.pullRequestPageUrl);
-
-    row.updateReviewerState(reviews);
-
-    const myState = reviews.getStatusByReviewerName(username);
-    if (enableBackgroundColor && myState !== 'not reviewer') {
-      row.changeBackgroundColor(ROW_BG_COLOR_MAP[myState]);
-    }
+    row.updateReviewerState(reviews, page.loginUsername.value);
   });
 
   let done = 0;

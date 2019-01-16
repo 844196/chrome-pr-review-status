@@ -1,76 +1,112 @@
-import { ReviewStatus as ReviewStatusColumn } from '../component/review-status';
+import { ReviewStatusColumn } from '../component/review-status-column';
 import { ReviewStatusToggleButton } from '../component/review-status-toggle-button';
-import { STATUS_DOM_CLASSNAME, TOGGLE_STATUS_BUTTON_ID } from '../constant';
-import { PullRequestListRow as IPullRequestListRow } from '../domain/pr-list-row';
-import { ReviewCollection } from '../domain/review';
+import { ROW_BG_COLOR_MAP, STATUS_DOM_CLASSNAME, TOGGLE_STATUS_BUTTON_ID } from '../constant';
+import { PullRequestListPage } from '../domain/pr-list-page';
 import { h } from '../util/create-element';
 import { $, $all } from '../util/query-selector';
+import { SSOT } from '../util/ssot';
+import { PullRequestListRowImpl } from './pr-list-row';
 
-class PullRequestListRow implements IPullRequestListRow {
-  public readonly pullRequestPageUrl: string;
-  private readonly reviewStatusColumn: ReviewStatusColumn;
-
-  public constructor(private readonly dom: HTMLDivElement) {
-    this.pullRequestPageUrl = $<HTMLAnchorElement>(dom, 'a.h4')!.href;
-
-    const insertedColumnDom = $<HTMLDivElement>(this.dom, `.${STATUS_DOM_CLASSNAME}`);
-    this.reviewStatusColumn = new ReviewStatusColumn(
-      insertedColumnDom ||
-        h('div', {
-          style: {
-            height: '105.312px',
-          },
-          class: [STATUS_DOM_CLASSNAME, 'col-2', 'p-2', 'float-left'],
-        }),
-    );
-    if (!insertedColumnDom) {
-      const title = $(this.dom, '.col-9')!;
-      title.classList.replace('col-9', 'col-7');
-      title.parentNode!.insertBefore(this.reviewStatusColumn.dom, title.nextSibling);
-    }
-  }
-
-  public updateReviewerState(reviews: ReviewCollection) {
-    this.reviewStatusColumn.fillRows(reviews);
-  }
-
-  public changeBackgroundColor(color: string) {
-    this.dom.style.backgroundColor = color;
-  }
-
-  public toggleDisplayReviewStatusColumn(isDisplay: boolean) {
-    this.reviewStatusColumn.isDisplay(isDisplay);
-  }
-}
-
-// tslint:disable-next-line:max-classes-per-file
-export class PullRequestListPage {
-  public readonly loginUsername: string;
+export class PullRequestListPageImpl implements PullRequestListPage {
+  public readonly loginUsername: SSOT<string>;
   public readonly button: ReviewStatusToggleButton;
-  public readonly rows: PullRequestListRow[];
+  public readonly rows: PullRequestListRowImpl[];
 
-  public constructor() {
-    this.loginUsername = $<HTMLMetaElement>('meta[name=user-login]')!.content;
-
-    const insertedButtonDom = $<HTMLButtonElement>(`#${TOGGLE_STATUS_BUTTON_ID}`);
-    this.button = new ReviewStatusToggleButton(
-      insertedButtonDom ||
-        h('button', {
-          props: {
-            id: TOGGLE_STATUS_BUTTON_ID,
-          },
-          class: ['btn', 'btn-default', 'float-right', 'mr-2'],
-        }),
-    );
-    if (!insertedButtonDom) {
-      $('.subnav')!.append(this.button.dom);
+  public constructor(
+    public readonly isDisplayReviewStatusColumn: SSOT<boolean>,
+    public readonly colorCoded: SSOT<boolean>,
+    debugUsername: SSOT<string>,
+  ) {
+    let loginUsername = $<HTMLMetaElement>('meta[name=user-login]')!.content;
+    if (ENVIRONMENT === 'development' && debugUsername.value !== '') {
+      loginUsername = debugUsername.value;
     }
+    this.loginUsername = new SSOT(loginUsername);
 
-    this.rows = $all<HTMLDivElement>('.js-issue-row').map((rowDom) => new PullRequestListRow(rowDom));
+    this.button = makeButton(this.isDisplayReviewStatusColumn);
+    this.rows = makeRows(this.isDisplayReviewStatusColumn, this.colorCoded);
   }
 
   get alreadyProcessed() {
-    const buttonState = this.button.state.value;
-    return buttonState === 'awaitingHide' || buttonState === 'awaitingShow';
+    return this.button.isAwaitClick;
+  }
+
+  public async doInjectReviewStatus(func: (page: PullRequestListPage, progress: SSOT<number>) => Promise<void>) {
+    const progress = new SSOT(0, (done) => this.button.updateProgress(done, this.rows.length));
+    this.button.fetchStart();
+    await func(this, progress);
+    this.button.fetchComplete(this.isDisplayReviewStatusColumn.value);
   }
 }
+
+const makeButton = (isDisplayReviewStatusColumn: SSOT<boolean>) => {
+  const insertedDom = $<HTMLButtonElement>(`#${TOGGLE_STATUS_BUTTON_ID}`);
+  const buttonDom =
+    insertedDom ||
+    h('button', {
+      props: {
+        id: TOGGLE_STATUS_BUTTON_ID,
+      },
+      class: ['btn', 'btn-default', 'float-right', 'mr-2'],
+    });
+
+  if (!insertedDom) {
+    $('.subnav')!.append(buttonDom);
+  }
+
+  const button = new ReviewStatusToggleButton(buttonDom);
+
+  button.click.on((isDisplay) => isDisplayReviewStatusColumn.change(isDisplay));
+  isDisplayReviewStatusColumn.onChangeWithRun((isDisplay) => {
+    if (button.isAwaitClick) {
+      button.changeStateByIsDisplay(isDisplay);
+    }
+  });
+
+  return button;
+};
+
+const makeColumn = (isDisplayReviewStatusColumn: SSOT<boolean>) => (rowDom: HTMLDivElement) => {
+  const insertedDom = $<HTMLDivElement>(rowDom, `.${STATUS_DOM_CLASSNAME}`);
+  const columnDom =
+    insertedDom ||
+    h('div', {
+      style: {
+        height: '105.312px',
+      },
+      class: [STATUS_DOM_CLASSNAME, 'col-2', 'p-2', 'float-left'],
+    });
+
+  isDisplayReviewStatusColumn.onChangeWithRun((isDisplay) => {
+    columnDom.style.display = isDisplay ? 'block' : 'none';
+  });
+
+  if (!insertedDom) {
+    const title = $(rowDom, '.col-9')!;
+    title.classList.replace('col-9', 'col-7');
+    title.parentNode!.insertBefore(columnDom, title.nextSibling);
+  }
+
+  return new ReviewStatusColumn(columnDom);
+};
+
+const makeRow = (makeColumnFunc: (rowDom: HTMLDivElement) => ReviewStatusColumn, colorCoded: SSOT<boolean>) => (
+  rowDom: HTMLDivElement,
+) => {
+  const row = new PullRequestListRowImpl(rowDom, makeColumnFunc);
+
+  const updateBackgroundColor = () => {
+    row.changeBackgroundColor(colorCoded.value ? ROW_BG_COLOR_MAP[row.myReviewState.value] : 'inherit');
+  };
+  row.myReviewState.onChange(updateBackgroundColor);
+  colorCoded.onChange(updateBackgroundColor);
+  updateBackgroundColor();
+
+  return row;
+};
+
+const makeRows = (isDisplayReviewStatusColumn: SSOT<boolean>, colorCoded: SSOT<boolean>) => {
+  const makeColumnFunc = makeColumn(isDisplayReviewStatusColumn);
+  const makeRowFunc = makeRow(makeColumnFunc, colorCoded);
+  return $all<HTMLDivElement>('.js-issue-row').map(makeRowFunc);
+};

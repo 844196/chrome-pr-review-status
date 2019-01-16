@@ -5,14 +5,9 @@ import { AbstractComponent } from './abstract-component';
 import { icons } from './review-status-icon';
 import { UserIcon } from './user-icon';
 
-export class ReviewStatus extends AbstractComponent<HTMLDivElement> {
+export class ReviewStatusColumn extends AbstractComponent<HTMLDivElement> {
   public constructor(public readonly dom: HTMLDivElement) {
     super();
-  }
-
-  public isDisplay(isDisplay: boolean): this {
-    this.dom.style.display = isDisplay ? 'block' : 'none';
-    return this;
   }
 
   public fillRows(reviews: ReviewCollection) {
