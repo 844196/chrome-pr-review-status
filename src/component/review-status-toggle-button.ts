@@ -1,6 +1,6 @@
 import * as octicons from 'octicons';
-import { SSOT } from '../util/ssot';
-import { TypedEvent } from '../util/typed-event';
+import { SSOT } from '../common/ssot';
+import { TypedEvent } from '../common/typed-event';
 
 type ButtonState = 'initialized' | 'fetching' | 'awaitingHide' | 'awaitingShow';
 

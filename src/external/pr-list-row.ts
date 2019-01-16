@@ -1,8 +1,8 @@
+import { SSOT } from '../common/ssot';
 import { ReviewStatusColumn } from '../component/review-status-column';
 import { PullRequestListRow } from '../domain/pr-list-row';
 import { isReviewStatus, ReviewCollection, ReviewStatus } from '../domain/review';
 import { $ } from '../util/query-selector';
-import { SSOT } from '../util/ssot';
 
 export class PullRequestListRowImpl implements PullRequestListRow {
   public readonly pullRequestPageUrl: string;

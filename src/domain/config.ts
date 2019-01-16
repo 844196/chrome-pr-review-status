@@ -1,4 +1,4 @@
-import { SSOT } from '../util/ssot';
+import { SSOT } from '../common/ssot';
 
 export interface ConfigValue {
   isDisplayDefault: boolean;

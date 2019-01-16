@@ -1,4 +1,4 @@
-import { SSOT } from '../util/ssot';
+import { SSOT } from '../common/ssot';
 import { PullRequestListRow } from './pr-list-row';
 
 export interface PullRequestListPage {

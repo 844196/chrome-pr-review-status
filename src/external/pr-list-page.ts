@@ -1,10 +1,10 @@
+import { SSOT } from '../common/ssot';
 import { ReviewStatusColumn } from '../component/review-status-column';
 import { ReviewStatusToggleButton } from '../component/review-status-toggle-button';
 import { ROW_BG_COLOR_MAP, STATUS_DOM_CLASSNAME, TOGGLE_STATUS_BUTTON_ID } from '../constant';
 import { PullRequestListPage } from '../domain/pr-list-page';
 import { h } from '../util/create-element';
 import { $, $all } from '../util/query-selector';
-import { SSOT } from '../util/ssot';
 import { PullRequestListRowImpl } from './pr-list-row';
 
 export class PullRequestListPageImpl implements PullRequestListPage {

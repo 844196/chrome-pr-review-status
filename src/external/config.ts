@@ -1,5 +1,5 @@
+import { SSOT } from '../common/ssot';
 import { Config as IConfig, ConfigValue } from '../domain/config';
-import { SSOT } from '../util/ssot';
 
 const defaults: ConfigValue = {
   isDisplayDefault: false,

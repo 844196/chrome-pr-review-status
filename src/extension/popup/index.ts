@@ -1,6 +1,6 @@
+import { SSOT } from '../../common/ssot';
 import { config } from '../../external/config';
 import { h } from '../../util/create-element';
-import { SSOT } from '../../util/ssot';
 
 const radioPair = (name: string, ssot: SSOT<boolean>) => {
   const radio = (checked: boolean, onChange: () => void) =>
