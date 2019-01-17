@@ -1,5 +1,12 @@
 import { SSOT } from '../common/ssot';
-import { Config as IConfig, ConfigValue } from '../domain/config';
+
+export interface ConfigValue {
+  isDisplayDefault: boolean;
+  enableBackgroundColor: boolean;
+  debugUsername: string;
+}
+
+export type Config = { [P in keyof ConfigValue]: Promise<SSOT<ConfigValue[P]>> };
 
 const defaults: ConfigValue = {
   isDisplayDefault: false,
@@ -30,7 +37,7 @@ const bind = async <T extends keyof ConfigValue>(key: T) => {
   return ssot;
 };
 
-export const config: IConfig = {
+export const config: Config = {
   isDisplayDefault: bind('isDisplayDefault'),
   enableBackgroundColor: bind('enableBackgroundColor'),
   debugUsername: bind('debugUsername'),
