@@ -15,25 +15,7 @@ export interface Review {
 export class ReviewCollection {
   public constructor(private readonly container: Review[]) {}
 
-  public findOrNullByReviewerUsername(reviewerUsername: string): Review | null {
-    for (const review of this.container) {
-      if (review.reviewer.name === reviewerUsername) {
-        return review;
-      }
-    }
-    return null;
-  }
-
-  public toReviewStatus(): ReviewStatus {
-    const status: ReviewStatus = {
-      approved: [],
-      leftComments: [],
-      requestedChanges: [],
-      unreviewed: [],
-    };
-    for (const review of this.container) {
-      status[review.result].push(review);
-    }
-    return status;
+  public toReviewStatus(pullRequestPageUrl: string): ReviewStatus {
+    return this.container.reduce((acc, next) => acc.push(next), new ReviewStatus(pullRequestPageUrl));
   }
 }

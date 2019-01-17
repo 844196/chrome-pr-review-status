@@ -13,6 +13,7 @@
     "bestzip": "^2.1.2",
     "copy-webpack-plugin": "^4.6.0",
     "cross-env": "^5.2.0",
+    "fp-ts": "^1.12.3",
     "npm-run-all": "^4.1.5",
     "octicons": "^8.3.0",
     "prettier": "^1.15.3",

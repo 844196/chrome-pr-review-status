@@ -17,14 +17,15 @@ export class PullRequestListPageImpl implements PullRequestListPage {
     public readonly colorCoded: SSOT<boolean>,
     debugUsername: SSOT<string>,
   ) {
-    let loginUsername = $<HTMLMetaElement>('meta[name=user-login]')!.content;
-    if (ENVIRONMENT === 'development' && debugUsername.value !== '') {
-      loginUsername = debugUsername.value;
+    const originLoginUsername = $<HTMLMetaElement>('meta[name=user-login]')!.content;
+    this.loginUsername = new SSOT(originLoginUsername);
+    if (ENVIRONMENT === 'development') {
+      debugUsername.onChangeWithRun((changed) => {
+        this.loginUsername.change(changed === '' ? originLoginUsername : changed);
+      });
     }
-    this.loginUsername = new SSOT(loginUsername);
-
     this.button = makeButton(this.isDisplayReviewStatusColumn);
-    this.rows = makeRows(this.isDisplayReviewStatusColumn, this.colorCoded);
+    this.rows = makeRows(this.isDisplayReviewStatusColumn, this.colorCoded, this.loginUsername);
   }
 
   get alreadyProcessed() {
@@ -66,7 +67,10 @@ const makeButton = (isDisplayReviewStatusColumn: SSOT<boolean>) => {
   return button;
 };
 
-const makeColumn = (isDisplayReviewStatusColumn: SSOT<boolean>) => (rowDom: HTMLDivElement) => {
+const makeColumn = (isDisplayReviewStatusColumn: SSOT<boolean>) => (
+  rowDom: HTMLDivElement,
+  pullRequestPageUrl: string,
+) => {
   const insertedDom = $<HTMLDivElement>(rowDom, `.${STATUS_DOM_CLASSNAME}`);
   const columnDom =
     insertedDom ||
@@ -87,19 +91,26 @@ const makeColumn = (isDisplayReviewStatusColumn: SSOT<boolean>) => (rowDom: HTML
     title.parentNode!.insertBefore(columnDom, title.nextSibling);
   }
 
-  return new ReviewStatusColumn(columnDom);
+  return new ReviewStatusColumn(columnDom, pullRequestPageUrl);
 };
 
-const makeRow = (makeColumnFunc: (rowDom: HTMLDivElement) => ReviewStatusColumn, colorCoded: SSOT<boolean>) => (
-  rowDom: HTMLDivElement,
-) => {
+const makeRow = (
+  makeColumnFunc: ReturnType<typeof makeColumn>,
+  colorCoded: SSOT<boolean>,
+  loginUsername: SSOT<string>,
+) => (rowDom: HTMLDivElement) => {
   const row = new PullRequestListRowImpl(rowDom, makeColumnFunc);
   colorCoded.pipeWithEmit(row.enableBackgroundColor);
+  loginUsername.onChangeWithRun(row.updateMyReviewState.bind(row));
   return row;
 };
 
-const makeRows = (isDisplayReviewStatusColumn: SSOT<boolean>, colorCoded: SSOT<boolean>) => {
+const makeRows = (
+  isDisplayReviewStatusColumn: SSOT<boolean>,
+  colorCoded: SSOT<boolean>,
+  loginUsername: SSOT<string>,
+) => {
   const makeColumnFunc = makeColumn(isDisplayReviewStatusColumn);
-  const makeRowFunc = makeRow(makeColumnFunc, colorCoded);
+  const makeRowFunc = makeRow(makeColumnFunc, colorCoded, loginUsername);
   return $all<HTMLDivElement>('.js-issue-row').map(makeRowFunc);
 };

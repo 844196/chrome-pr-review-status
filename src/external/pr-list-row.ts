@@ -11,10 +11,13 @@ export class PullRequestListRowImpl implements PullRequestListRow {
   public readonly enableBackgroundColor = new SSOT(true);
   private readonly myReviewState: SSOT<MyReviewState>;
 
-  public constructor(private readonly dom: HTMLDivElement, makeColumn: (rowDom: HTMLDivElement) => ReviewStatusColumn) {
+  public constructor(
+    private readonly dom: HTMLDivElement,
+    makeColumn: (rowDom: HTMLDivElement, pullRequestPageUrl: string) => ReviewStatusColumn,
+  ) {
     this.pullRequestPageUrl = $<HTMLAnchorElement>(this.dom, 'a.h4')!.href;
 
-    this.reviewStatusColumn = makeColumn(this.dom);
+    this.reviewStatusColumn = makeColumn(this.dom, this.pullRequestPageUrl);
 
     const parsedMyReviewState = this.dom.dataset.myReviewState;
     const myReviewState = isMyReviewState(parsedMyReviewState) ? parsedMyReviewState : 'notReviewer';
@@ -26,10 +29,15 @@ export class PullRequestListRowImpl implements PullRequestListRow {
     this.enableBackgroundColor.onChange(this.updateBackgroundColor.bind(this));
   }
 
-  public updateReviewStatusColumn(reviews: ReviewCollection, myUsername: string) {
-    this.reviewStatusColumn.update(reviews.toReviewStatus());
-    const myReview = reviews.findOrNullByReviewerUsername(myUsername);
-    this.myReviewState.change(myReview ? myReview.result : 'notReviewer');
+  public updateReviewStatusColumn(reviews: ReviewCollection) {
+    this.reviewStatusColumn.reviewStatus.change(reviews.toReviewStatus(this.pullRequestPageUrl));
+  }
+
+  public updateMyReviewState(myUsername: string) {
+    const state = this.reviewStatusColumn.reviewStatus.value
+      .findByUsername(myUsername)
+      .fold<MyReviewState>('notReviewer', ({ result }) => result);
+    this.myReviewState.change(state);
   }
 
   private updateBackgroundColor() {

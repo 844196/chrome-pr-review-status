@@ -5,7 +5,8 @@ import { fetchReviews } from '../external/review';
 export async function injectReviewStatus(page: PullRequestListPage, injectionProgress: SSOT<number>) {
   const processes = page.rows.map(async (row) => {
     const reviews = await fetchReviews(row.pullRequestPageUrl);
-    row.updateReviewStatusColumn(reviews, page.loginUsername.value);
+    row.updateReviewStatusColumn(reviews);
+    row.updateMyReviewState(page.loginUsername.value);
   });
 
   let done = 0;

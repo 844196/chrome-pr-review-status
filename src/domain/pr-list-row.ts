@@ -2,5 +2,6 @@ import { ReviewCollection } from './review';
 
 export interface PullRequestListRow {
   readonly pullRequestPageUrl: string;
-  updateReviewStatusColumn(reviews: ReviewCollection, myUsername: string): void;
+  updateReviewStatusColumn(reviews: ReviewCollection): void;
+  updateMyReviewState(myUsername: string): void;
 }
