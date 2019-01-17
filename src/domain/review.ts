@@ -17,7 +17,7 @@ export class ReviewCollection {
 
   public findOrNullByReviewerUsername(reviewerUsername: string): Review | null {
     for (const review of this.container) {
-      if (review.reviewer.name === `@${reviewerUsername}`) {
+      if (review.reviewer.name === reviewerUsername) {
         return review;
       }
     }

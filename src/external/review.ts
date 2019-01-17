@@ -17,7 +17,7 @@ export async function fetchReviews(url: string): Promise<ReviewCollection> {
     try {
       const icon = $<HTMLImageElement>(ele, 'img')!;
       reviewer = {
-        name: icon.alt,
+        name: icon.alt.slice(1), // 先頭の "@" を除く
         iconUrl: icon.src,
       };
     } catch (_) {
