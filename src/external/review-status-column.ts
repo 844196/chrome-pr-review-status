@@ -19,24 +19,22 @@ export class ReviewStatusColumn {
         status.push({ result, reviewer: { name: username, iconUrl: img.src } });
       }
     }
+    this.reviewStatus = new SSOT(status, this.onReviewStatusChange.bind(this));
+  }
 
-    this.reviewStatus = new SSOT(status, (newStatus) => {
-      while (this.dom.firstChild) {
-        this.dom.removeChild(this.dom.firstChild);
+  private onReviewStatusChange(status: ReviewStatus) {
+    while (this.dom.firstChild) {
+      this.dom.removeChild(this.dom.firstChild);
+    }
+    for (const result of STATUS_DOM_ROW_ORDER) {
+      const reviewerIcons = status[result].map(({ reviewer }) => userIcon(reviewer));
+      if (reviewerIcons.length === 0) {
+        continue;
       }
-
-      for (const result of STATUS_DOM_ROW_ORDER) {
-        const reviewerIcons = newStatus[result].map(({ reviewer }) => userIcon(reviewer));
-        if (reviewerIcons.length === 0) {
-          continue;
-        }
-
-        const row = h('div', [reviewResultIcon(result), ...reviewerIcons]);
-        row.dataset.reviewResult = result;
-
-        this.dom.append(row);
-      }
-    });
+      const row = h('div', [reviewResultIcon(result), ...reviewerIcons]);
+      row.dataset.reviewResult = result;
+      this.dom.append(row);
+    }
   }
 }
 

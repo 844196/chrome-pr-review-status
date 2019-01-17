@@ -1,11 +1,10 @@
+import { fromNullable } from 'fp-ts/lib/Option';
 import * as octicons from 'octicons';
 import { SSOT } from '../common/ssot';
 import { TypedEvent } from '../common/typed-event';
 
 type ButtonState = 'initialized' | 'fetching' | 'awaitingHide' | 'awaitingShow';
-
-const isButtonState = (v: any): v is ButtonState =>
-  ['initialized', 'fetching', 'awaitingHide', 'awaitingShow'].includes(v);
+const buttonState = (v: string | undefined) => fromNullable<ButtonState>(v as any);
 
 const textMap: { [_ in ButtonState]: string } = {
   initialized: 'Please wait...',
@@ -19,21 +18,12 @@ export class ReviewStatusColumnToggleButton {
   private readonly state: SSOT<ButtonState>;
 
   public constructor(public readonly dom: HTMLButtonElement) {
-    const parsedState = this.dom.dataset.state;
-    this.state = new SSOT<ButtonState>(isButtonState(parsedState) ? parsedState : 'initialized')
+    this.state = new SSOT(buttonState(this.dom.dataset.state).getOrElse('initialized'))
       .onChange((state) => {
         this.dom.dataset.state = state;
       })
-      .onChangeWithRun((state) => {
-        this.dom.disabled = state === 'initialized' || state === 'fetching';
-        this.dom.innerHTML = textMap[state];
-      });
-
-    this.dom.addEventListener('click', () => {
-      const currentState = this.state.value;
-      this.click.emit(currentState === 'awaitingShow');
-      this.state.change(currentState === 'awaitingShow' ? 'awaitingHide' : 'awaitingShow');
-    });
+      .onChangeWithRun(this.onStateChange.bind(this));
+    this.dom.addEventListener('click', this.onClick.bind(this));
   }
 
   public get isAwaitClick() {
@@ -56,5 +46,16 @@ export class ReviewStatusColumnToggleButton {
 
   public changeStateByIsDisplay(isDisplay: boolean) {
     this.state.change(isDisplay ? 'awaitingHide' : 'awaitingShow');
+  }
+
+  private onStateChange(state: ButtonState) {
+    this.dom.disabled = state === 'initialized' || state === 'fetching';
+    this.dom.innerHTML = textMap[state];
+  }
+
+  private onClick() {
+    const currentState = this.state.value;
+    this.click.emit(currentState === 'awaitingShow');
+    this.state.change(currentState === 'awaitingShow' ? 'awaitingHide' : 'awaitingShow');
   }
 }
