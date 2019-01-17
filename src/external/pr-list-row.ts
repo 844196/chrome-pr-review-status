@@ -1,9 +1,9 @@
 import { SSOT } from '../common/ssot';
-import { ReviewStatusColumn } from '../component/review-status-column';
 import { ROW_BG_COLOR_MAP } from '../constant';
 import { PullRequestListRow } from '../domain/pr-list-row';
 import { isMyReviewState, MyReviewState, ReviewCollection } from '../domain/review';
 import { $ } from '../util/query-selector';
+import { ReviewStatusColumn } from './review-status-column';
 
 export class PullRequestListRowImpl implements PullRequestListRow {
   public readonly pullRequestPageUrl: string;

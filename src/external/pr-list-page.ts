@@ -1,15 +1,15 @@
 import { SSOT } from '../common/ssot';
-import { ReviewStatusColumn } from '../component/review-status-column';
-import { ReviewStatusToggleButton } from '../component/review-status-toggle-button';
 import { STATUS_DOM_CLASSNAME, TOGGLE_STATUS_BUTTON_ID } from '../constant';
 import { PullRequestListPage } from '../domain/pr-list-page';
 import { h } from '../util/create-element';
 import { $, $all } from '../util/query-selector';
 import { PullRequestListRowImpl } from './pr-list-row';
+import { ReviewStatusColumn } from './review-status-column';
+import { ReviewStatusColumnToggleButton } from './review-status-column-toggle-button';
 
 export class PullRequestListPageImpl implements PullRequestListPage {
   public readonly loginUsername: SSOT<string>;
-  public readonly button: ReviewStatusToggleButton;
+  public readonly button: ReviewStatusColumnToggleButton;
   public readonly rows: PullRequestListRowImpl[];
 
   public constructor(
@@ -54,7 +54,7 @@ const makeButton = (isDisplayReviewStatusColumn: SSOT<boolean>) => {
     $('.subnav')!.append(buttonDom);
   }
 
-  const button = new ReviewStatusToggleButton(buttonDom);
+  const button = new ReviewStatusColumnToggleButton(buttonDom);
 
   button.click.on((isDisplay) => isDisplayReviewStatusColumn.change(isDisplay));
   isDisplayReviewStatusColumn.onChangeWithRun((isDisplay) => {

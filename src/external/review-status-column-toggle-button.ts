@@ -14,7 +14,7 @@ const textMap: { [_ in ButtonState]: string } = {
   awaitingShow: `${octicons.unfold.toSVG()}&nbsp;Show review status`,
 };
 
-export class ReviewStatusToggleButton {
+export class ReviewStatusColumnToggleButton {
   public readonly click = new TypedEvent<boolean>();
   private readonly state: SSOT<ButtonState>;
 
