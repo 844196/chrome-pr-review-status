@@ -1,7 +1,7 @@
 import { SSOT } from '../common/ssot';
 import { ReviewStatusColumn } from '../component/review-status-column';
 import { ReviewStatusToggleButton } from '../component/review-status-toggle-button';
-import { ROW_BG_COLOR_MAP, STATUS_DOM_CLASSNAME, TOGGLE_STATUS_BUTTON_ID } from '../constant';
+import { STATUS_DOM_CLASSNAME, TOGGLE_STATUS_BUTTON_ID } from '../constant';
 import { PullRequestListPage } from '../domain/pr-list-page';
 import { h } from '../util/create-element';
 import { $, $all } from '../util/query-selector';
@@ -94,14 +94,7 @@ const makeRow = (makeColumnFunc: (rowDom: HTMLDivElement) => ReviewStatusColumn,
   rowDom: HTMLDivElement,
 ) => {
   const row = new PullRequestListRowImpl(rowDom, makeColumnFunc);
-
-  const updateBackgroundColor = () => {
-    row.changeBackgroundColor(colorCoded.value ? ROW_BG_COLOR_MAP[row.myReviewState.value] : 'inherit');
-  };
-  row.myReviewState.onChange(updateBackgroundColor);
-  colorCoded.onChange(updateBackgroundColor);
-  updateBackgroundColor();
-
+  colorCoded.pipeWithEmit(row.enableBackgroundColor);
   return row;
 };
 

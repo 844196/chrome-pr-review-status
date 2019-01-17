@@ -1,34 +1,39 @@
+import { ReviewStatus } from './review-status';
 import { Reviewer } from './reviewer';
 
-export type ReviewStatus = 'notReviewer' | 'unreviewed' | 'leftComments' | 'requestedChanges' | 'approved';
-export const isReviewStatus = (v: any): v is ReviewStatus =>
+export type ReviewResult = 'unreviewed' | 'leftComments' | 'requestedChanges' | 'approved';
+
+export type MyReviewState = ReviewResult | 'notReviewer';
+export const isMyReviewState = (v: any): v is MyReviewState =>
   ['notReviewer', 'unreviewed', 'leftComments', 'requestedChanges', 'approved'].includes(v);
 
 export interface Review {
   reviewer: Reviewer;
-  status: Exclude<ReviewStatus, 'notReviewer'>;
+  result: ReviewResult;
 }
 
 export class ReviewCollection {
   public constructor(private readonly container: Review[]) {}
 
-  public getStatusByReviewerName(reviewerName: string) {
+  public findOrNullByReviewerUsername(reviewerUsername: string): Review | null {
     for (const review of this.container) {
-      if (review.reviewer.name === `@${reviewerName}`) {
-        return review.status;
+      if (review.reviewer.name === `@${reviewerUsername}`) {
+        return review;
       }
     }
-    return 'notReviewer';
+    return null;
   }
 
-  public groupingReviewerByStatus() {
-    const grouped: { [_ in ReviewStatus]?: Reviewer[] } = {};
-    for (const { reviewer, status } of this.container) {
-      if (typeof grouped[status] === 'undefined') {
-        grouped[status] = [];
-      }
-      grouped[status]!.push(reviewer);
+  public toReviewStatus(): ReviewStatus {
+    const status: ReviewStatus = {
+      approved: [],
+      leftComments: [],
+      requestedChanges: [],
+      unreviewed: [],
+    };
+    for (const review of this.container) {
+      status[review.result].push(review);
     }
-    return grouped;
+    return status;
   }
 }

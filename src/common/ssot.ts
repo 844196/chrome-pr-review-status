@@ -24,6 +24,17 @@ export class SSOT<T> {
     return this;
   }
 
+  public pipe(other: SSOT<T>) {
+    this.onChange((value) => other.change(value));
+    return this;
+  }
+
+  public pipeWithEmit(other: SSOT<T>) {
+    this.pipe(other);
+    other.change(this.value);
+    return this;
+  }
+
   public change(value: T) {
     this.self = value;
     this.event.emit(value);

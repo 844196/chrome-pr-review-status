@@ -1,4 +1,4 @@
-import { Review, ReviewCollection, ReviewStatus } from '../domain/review';
+import { Review, ReviewCollection, ReviewResult } from '../domain/review';
 import { Reviewer } from '../domain/reviewer';
 import { h } from '../util/create-element';
 import * as Logger from '../util/logger';
@@ -25,7 +25,7 @@ export async function fetchReviews(url: string): Promise<ReviewCollection> {
       return;
     }
 
-    let status: ReviewStatus;
+    let status: ReviewResult;
     const classes = $(ele, '.reviewers-status-icon svg')!.classList;
     if (classes.contains('octicon-check')) {
       status = 'approved';
@@ -37,7 +37,7 @@ export async function fetchReviews(url: string): Promise<ReviewCollection> {
       status = 'leftComments';
     }
 
-    reviews.push({ reviewer, status });
+    reviews.push({ reviewer, result: status });
   });
 
   return new ReviewCollection(reviews);

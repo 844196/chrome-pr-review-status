@@ -1,23 +1,22 @@
 import * as octicons from 'octicons';
 import { STATUS_DOM_ROW_ORDER } from '../constant';
-import { ReviewCollection, ReviewStatus } from '../domain/review';
+import { ReviewResult } from '../domain/review';
+import { ReviewStatus } from '../domain/review-status';
 import { h } from '../util/create-element';
 
 export class ReviewStatusColumn {
   public constructor(public readonly dom: HTMLDivElement) {}
 
-  public fillRows(reviews: ReviewCollection) {
+  public update(status: ReviewStatus) {
     while (this.dom.firstChild) {
       this.dom.removeChild(this.dom.firstChild);
     }
-
-    const reviewersByStatus = reviews.groupingReviewerByStatus();
-    for (const status of STATUS_DOM_ROW_ORDER) {
-      const reviewers = reviewersByStatus[status];
-      if (!reviewers) {
+    for (const result of STATUS_DOM_ROW_ORDER) {
+      const reviewerIcons = status[result].map((review) => userIcon(review.reviewer.iconUrl));
+      if (reviewerIcons.length === 0) {
         continue;
       }
-      this.dom.append(h('div', [statusIcon(status), ...reviewers.map(({ iconUrl }) => userIcon(iconUrl))]));
+      this.dom.append(h('div', [reviewResultIcon(result), ...reviewerIcons]));
     }
   }
 }
@@ -36,8 +35,8 @@ const userIcon = (src: string) =>
     },
   });
 
-const statusIcon = (status: Exclude<ReviewStatus, 'notReviewer'>) => {
-  const { svg, colorClass } = statusIconMap[status];
+const reviewResultIcon = (result: ReviewResult) => {
+  const { svg, colorClass } = resultIconMap[result];
   return h('span', {
     props: {
       innerHTML: svg,
@@ -53,8 +52,8 @@ const statusIcon = (status: Exclude<ReviewStatus, 'notReviewer'>) => {
   });
 };
 
-const statusIconMap: {
-  [P in Exclude<ReviewStatus, 'notReviewer'>]: {
+const resultIconMap: {
+  [P in ReviewResult]: {
     svg: string;
     colorClass: string;
   }

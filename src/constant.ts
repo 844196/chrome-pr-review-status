@@ -1,6 +1,8 @@
-import { ReviewStatus } from './domain/review';
+import { ReviewResult } from './domain/review';
 
-export const ROW_BG_COLOR_MAP: { [_ in ReviewStatus | 'notReviewer']: string } = {
+export const STATUS_DOM_ROW_ORDER: ReviewResult[] = ['approved', 'requestedChanges', 'leftComments', 'unreviewed'];
+
+export const ROW_BG_COLOR_MAP: { [_ in ReviewResult | 'notReviewer']: string } = {
   notReviewer: 'inherit',
   unreviewed: '#f3f3b9',
   approved: '#b9f3d2',
@@ -11,10 +13,3 @@ export const ROW_BG_COLOR_MAP: { [_ in ReviewStatus | 'notReviewer']: string } =
 export const STATUS_DOM_CLASSNAME = 'review-status';
 
 export const TOGGLE_STATUS_BUTTON_ID = 'status-display-toggle-btn';
-
-export const STATUS_DOM_ROW_ORDER: Array<Exclude<ReviewStatus, 'notReviewer'>> = [
-  'approved',
-  'requestedChanges',
-  'leftComments',
-  'unreviewed',
-];
