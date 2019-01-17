@@ -1,6 +1,8 @@
 {
   "manifest_version": 2,
   "name": "PR review status",
+  "description": "GithubのPull request一覧ページに完全なレビュー状況を表示させるChrome extensionです",
+  "homepage_url": "https://github.com/844196/chrome-pr-review-status",
   "permissions": [
     "https://github.com/*/*/pulls",
     "webNavigation",
@@ -25,5 +27,10 @@
       ]
     }
   ],
+  "icons": {
+    "16": "icon/icon16.png",
+    "48": "icon/icon48.png",
+    "128": "icon/icon128.png"
+  },
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
 }

@@ -44,6 +44,11 @@ module.exports = {
         from: extension('popup/index.html'),
         to: 'popup',
       },
+      {
+        from: extension('icon/*'),
+        to: 'icon',
+        flatten: true,
+      }
     ]),
     new DefinePlugin({
       ENVIRONMENT: JSON.stringify(ENV),
