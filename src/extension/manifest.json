@@ -4,7 +4,8 @@
   "description": "GithubのPull request一覧ページに完全なレビュー状況を表示させるChrome extensionです",
   "homepage_url": "https://github.com/844196/chrome-pr-review-status",
   "permissions": [
-    "https://github.com/*/*/pulls",
+    "https://github.com/*",
+    "tabs",
     "webNavigation",
     "storage"
   ],

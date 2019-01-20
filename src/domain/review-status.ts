@@ -1,36 +1,38 @@
-import { none, Option, some } from 'fp-ts/lib/Option';
+import { findFirst } from 'fp-ts/lib/Array';
+import { Either } from 'fp-ts/lib/Either';
+import { none, Option } from 'fp-ts/lib/Option';
 import { Review, ReviewResult } from './review';
 
-export class ReviewStatus implements Iterable<[ReviewResult, Review[]]> {
-  public readonly approved: Review[] = [];
-  public readonly leftComments: Review[] = [];
-  public readonly requestedChanges: Review[] = [];
-  public readonly unreviewed: Review[] = [];
+type ReviewSet<T extends ReviewResult> = Set<Review<T>>;
 
-  public constructor(public readonly pullRequestPageUrl: string) {}
+export class ReviewStatus {
+  private readonly container: { readonly [P in ReviewResult]: ReviewSet<P> } = {
+    approved: new Set(),
+    leftComments: new Set(),
+    requestedChanges: new Set(),
+    unreviewed: new Set(),
+  };
 
-  public [Symbol.iterator]() {
-    const a: Array<[ReviewResult, Review[]]> = [
-      ['approved', this.approved],
-      ['leftComments', this.leftComments],
-      ['requestedChanges', this.requestedChanges],
-      ['unreviewed', this.unreviewed],
-    ];
-    return a[Symbol.iterator]();
-  }
-
-  public push(review: Review) {
-    this[review.result].push(review);
+  public add<T extends ReviewResult>(review: Review<T>): this {
+    (this.container[review.result] as ReviewSet<T>).add(review);
     return this;
   }
 
-  public findByUsername(username: string): Option<Review> {
-    for (const [, reviews] of this) {
-      const review = reviews.find(({ reviewer }) => reviewer.name === username);
-      if (review) {
-        return some(review);
+  public reviewsOf<T extends ReviewResult>(result: T): ReviewSet<T> {
+    return this.container[result] as ReviewSet<T>;
+  }
+
+  public findByReviewerName(reviewerName: string): Option<Review<ReviewResult>> {
+    for (const [, reviews] of Object.entries(this.container)) {
+      const review = findFirst<Review<ReviewResult>>([...reviews], ({ reviewer }) => reviewer.name === reviewerName);
+      if (review.isSome()) {
+        return review;
       }
     }
     return none;
   }
+}
+
+export interface ReviewStatusRepository {
+  findByUrl(url: string): Promise<Either<string, ReviewStatus>>;
 }

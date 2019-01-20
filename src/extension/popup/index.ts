@@ -1,5 +1,5 @@
 import { SSOT } from '../../common/ssot';
-import { config } from '../../external/config';
+import { store } from '../../store/store';
 import { h } from '../../util/create-element';
 
 const radioPair = (name: string, ssot: SSOT<boolean>) => {
@@ -45,12 +45,12 @@ const textField = (name: string, ssot: SSOT<string>) =>
 
 (async () => {
   const components = [
-    radioPair('isDisplayDefault', await config.isDisplayDefault),
+    radioPair('isDisplayDefault', await store.isDisplayReviewStatusColumn),
     h('hr'),
-    radioPair('enableBackgroundColor', await config.enableBackgroundColor),
+    radioPair('enableBackgroundColor', await store.colorCoded),
   ];
   if (ENVIRONMENT === 'development') {
-    components.push(h('hr'), textField('debugUsername', await config.debugUsername));
+    components.push(h('hr'), textField('debugUsername', await store.loginUsername));
   }
   document.body.append(...components);
 })();

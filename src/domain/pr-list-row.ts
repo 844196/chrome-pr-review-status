@@ -1,7 +1,9 @@
-import { ReviewCollection } from './review';
+import { SSOT } from '../common/ssot';
+import { ReviewStatus } from './review-status';
 
 export interface PullRequestListRow {
   readonly pullRequestPageUrl: string;
-  updateReviewStatusColumn(reviews: ReviewCollection): void;
-  updateMyReviewState(myUsername: string): void;
+  readonly $props: {
+    readonly reviewStatus: SSOT<ReviewStatus>;
+  };
 }

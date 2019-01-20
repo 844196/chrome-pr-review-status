@@ -29,14 +29,12 @@ export class SSOT<T> {
     return this;
   }
 
-  public pipeWithEmit(other: SSOT<T>) {
-    this.pipe(other);
-    other.change(this.value);
-    return this;
-  }
-
   public change(value: T) {
     this.self = value;
     this.event.emit(value);
+  }
+
+  public emit() {
+    this.event.emit(this.value);
   }
 }

@@ -2,60 +2,117 @@ import { fromNullable } from 'fp-ts/lib/Option';
 import * as octicons from 'octicons';
 import { SSOT } from '../common/ssot';
 import { TypedEvent } from '../common/typed-event';
+import { store } from '../store/store';
 
-type ButtonState = 'initialized' | 'fetching' | 'awaitingHide' | 'awaitingShow';
-const buttonState = (v: string | undefined) => fromNullable<ButtonState>(v as any);
-
-const textMap: { [_ in ButtonState]: string } = {
-  initialized: 'Please wait...',
-  fetching: 'Fetching...',
-  awaitingHide: `${octicons.fold.toSVG()}&nbsp;Hide review status`,
-  awaitingShow: `${octicons.unfold.toSVG()}&nbsp;Show review status`,
-};
+type ButtonState = 'initialized' | 'displayProgress' | 'awaitingClick';
+const ButtonState = (v: string | undefined) => fromNullable<ButtonState>(v as any);
 
 export class ReviewStatusColumnToggleButton {
-  public readonly click = new TypedEvent<boolean>();
-  private readonly state: SSOT<ButtonState>;
+  private constructor(
+    public readonly $data: {
+      readonly state: SSOT<ButtonState>;
+      readonly text: SSOT<string>;
+      readonly awaitingText: SSOT<string>;
+      readonly progress: {
+        readonly value: SSOT<number>;
+        readonly max: SSOT<number>;
+      };
+    },
+  ) {}
 
-  public constructor(public readonly dom: HTMLButtonElement) {
-    this.state = new SSOT(buttonState(this.dom.dataset.state).getOrElse('initialized'))
-      .onChange((state) => {
-        this.dom.dataset.state = state;
+  public static async mount($ele: HTMLButtonElement) {
+    const buttonProps: Button['$props'] = {
+      content: new SSOT(''),
+      dataset: new SSOT({}),
+      disabled: new SSOT(true),
+    };
+    const button = await Button.mount($ele, buttonProps);
+    const isDisplayReviewStatusColumn = await store.isDisplayReviewStatusColumn;
+    button.$on.click.on(() => {
+      const inverted = !isDisplayReviewStatusColumn.value;
+      isDisplayReviewStatusColumn.change(inverted);
+    });
+
+    const $data: ReviewStatusColumnToggleButton['$data'] = {
+      state: new SSOT(ButtonState($ele.dataset.state).getOrElse('initialized'), (changed) =>
+        button.$props.dataset.change({ state: changed }),
+      ),
+      text: new SSOT(''),
+      awaitingText: new SSOT(''),
+      progress: {
+        value: new SSOT(0),
+        max: new SSOT(0),
+      },
+    };
+
+    isDisplayReviewStatusColumn.onChangeWithRun((changed) => {
+      const text = changed
+        ? `${octicons.fold.toSVG()}&nbsp;Hide review status`
+        : `${octicons.unfold.toSVG()}&nbsp;Show review status`;
+      $data.awaitingText.change(text);
+
+      if ($data.state.value === 'awaitingClick') {
+        $data.text.change($data.awaitingText.value);
+      }
+    });
+
+    $data.text.pipe(button.$props.content);
+
+    $data.state
+      .onChangeWithRun((changed) => {
+        switch (changed) {
+          case 'initialized':
+            $data.text.change('Please wait...');
+            break;
+          case 'displayProgress':
+            $data.text.change('Fetching...');
+            break;
+          case 'awaitingClick':
+            $data.text.change($data.awaitingText.value);
+            break;
+        }
       })
-      .onChangeWithRun(this.onStateChange.bind(this));
-    this.dom.addEventListener('click', this.onClick.bind(this));
-  }
+      .onChangeWithRun((changed) => button.$props.disabled.change(changed !== 'awaitingClick'));
 
-  public get isAwaitClick() {
-    return this.state.value === 'awaitingHide' || this.state.value === 'awaitingShow';
-  }
+    $data.progress.value.onChange((changed) => {
+      button.$props.content.change(`Fetching... (${changed}/${$data.progress.max.value})`);
+    });
 
-  public fetchStart() {
-    this.state.change('fetching');
+    return new this($data);
   }
+}
 
-  public updateProgress(current: number, all: number) {
-    if (this.state.value === 'fetching') {
-      this.dom.innerHTML = `Fetching... (${current}/${all})`;
-    }
-  }
+// tslint:disable-next-line:max-classes-per-file
+class Button {
+  private constructor(
+    public readonly $props: {
+      content: SSOT<string>;
+      dataset: SSOT<{ [key: string]: string | undefined }>;
+      disabled: SSOT<boolean>;
+    },
+    public readonly $on: {
+      click: TypedEvent<void>;
+    },
+  ) {}
 
-  public fetchComplete(isDisplay: boolean) {
-    this.changeStateByIsDisplay(isDisplay);
-  }
+  public static async mount($ele: HTMLButtonElement, $props: Button['$props']) {
+    $props.content.onChangeWithRun((changed) => {
+      $ele.innerHTML = changed;
+    });
 
-  public changeStateByIsDisplay(isDisplay: boolean) {
-    this.state.change(isDisplay ? 'awaitingHide' : 'awaitingShow');
-  }
+    $props.dataset.onChangeWithRun((changed) => {
+      for (const [k, v] of Object.entries(changed)) {
+        $ele.dataset[k] = v;
+      }
+    });
 
-  private onStateChange(state: ButtonState) {
-    this.dom.disabled = state === 'initialized' || state === 'fetching';
-    this.dom.innerHTML = textMap[state];
-  }
+    $props.disabled.onChangeWithRun((changed) => {
+      $ele.disabled = changed;
+    });
 
-  private onClick() {
-    const currentState = this.state.value;
-    this.click.emit(currentState === 'awaitingShow');
-    this.state.change(currentState === 'awaitingShow' ? 'awaitingHide' : 'awaitingShow');
+    const click = new TypedEvent<void>();
+    $ele.addEventListener('click', () => click.emit());
+
+    return new this($props, { click });
   }
 }

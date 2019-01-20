@@ -1,44 +1,61 @@
 import { SSOT } from '../common/ssot';
-import { ROW_BG_COLOR_MAP } from '../constant';
+import { ROW_BG_COLOR_MAP, STATUS_DOM_CLASSNAME } from '../constant';
 import { PullRequestListRow } from '../domain/pr-list-row';
-import { MyReviewState, myReviewState, ReviewCollection } from '../domain/review';
+import { reviewState, ReviewState } from '../domain/review-state';
+import { ReviewStatus } from '../domain/review-status';
+import { store } from '../store/store';
 import { $ } from '../util/query-selector';
 import { ReviewStatusColumn } from './review-status-column';
 
 export class PullRequestListRowImpl implements PullRequestListRow {
-  public readonly pullRequestPageUrl: string;
-  public readonly reviewStatusColumn: ReviewStatusColumn;
-  public readonly enableBackgroundColor = new SSOT(true);
-  private readonly myReviewState: SSOT<MyReviewState>;
+  private constructor(
+    private readonly $ele: HTMLDivElement,
+    public readonly $props: {
+      readonly reviewStatus: SSOT<ReviewStatus>;
+    },
+    private readonly $data: {
+      readonly myReviewState: SSOT<ReviewState>;
+    },
+  ) {}
 
-  public constructor(
-    private readonly dom: HTMLDivElement,
-    makeColumn: (rowDom: HTMLDivElement, pullRequestPageUrl: string) => ReviewStatusColumn,
-  ) {
-    this.pullRequestPageUrl = $<HTMLAnchorElement>(this.dom, 'a.h4')!.href;
-    this.reviewStatusColumn = makeColumn(this.dom, this.pullRequestPageUrl);
-    this.myReviewState = new SSOT(myReviewState(this.dom.dataset.myReviewState).getOrElse('notReviewer'))
-      .onChange((state) => {
-        this.dom.dataset.myReviewState = state;
-      })
-      .onChange(this.updateBackgroundColor.bind(this));
-    this.enableBackgroundColor.onChange(this.updateBackgroundColor.bind(this));
+  get pullRequestPageUrl() {
+    return $<HTMLAnchorElement>(this.$ele, 'a.h4')!.href;
   }
 
-  public updateReviewStatusColumn(reviews: ReviewCollection) {
-    this.reviewStatusColumn.reviewStatus.change(reviews.toReviewStatus(this.pullRequestPageUrl));
+  public static async mount($ele: HTMLDivElement) {
+    const columnDom = $<HTMLDivElement>($ele, `.${STATUS_DOM_CLASSNAME}`)!;
+    const reviewStatus = new SSOT(ReviewStatusColumn.parseStatusFromDom(columnDom));
+    await ReviewStatusColumn.mount(columnDom, reviewStatus, await store.isDisplayReviewStatusColumn);
+
+    const props = { reviewStatus };
+    const data = {
+      myReviewState: new SSOT(reviewState($ele.dataset.myReviewState).getOrElse('notReviewer')).onChange((changed) => {
+        $ele.dataset.myReviewState = changed;
+      }),
+    };
+
+    const self = new this($ele, props, data);
+
+    self.$props.reviewStatus.onChange(self.computeMyReviewState.bind(self));
+    (await store.loginUsername).onChange(self.computeMyReviewState.bind(self));
+    self.$data.myReviewState.onChange(self.updateBackgroundColor.bind(self));
+    (await store.colorCoded).onChange(self.updateBackgroundColor.bind(self));
+
+    await self.computeMyReviewState();
+
+    return self;
   }
 
-  public updateMyReviewState(myUsername: string) {
-    const state = this.reviewStatusColumn.reviewStatus.value
-      .findByUsername(myUsername)
-      .fold<MyReviewState>('notReviewer', ({ result }) => result);
-    this.myReviewState.change(state);
+  private async computeMyReviewState() {
+    const computed = this.$props.reviewStatus.value
+      .findByReviewerName((await store.loginUsername).value)
+      .fold<ReviewState>('notReviewer', ({ result }) => result);
+    this.$data.myReviewState.change(computed);
   }
 
-  private updateBackgroundColor() {
-    this.dom.style.backgroundColor = this.enableBackgroundColor.value
-      ? ROW_BG_COLOR_MAP[this.myReviewState.value]
+  private async updateBackgroundColor() {
+    this.$ele.style.backgroundColor = (await store.colorCoded).value
+      ? ROW_BG_COLOR_MAP[this.$data.myReviewState.value]
       : 'inherit';
   }
 }

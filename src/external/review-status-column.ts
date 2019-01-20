@@ -1,39 +1,57 @@
 import * as octicons from 'octicons';
 import { SSOT } from '../common/ssot';
 import { STATUS_DOM_ROW_ORDER } from '../constant';
-import { ReviewResult } from '../domain/review';
+import { Reviewer, ReviewResult } from '../domain/review';
 import { ReviewStatus } from '../domain/review-status';
-import { Reviewer } from '../domain/reviewer';
 import { h } from '../util/create-element';
 import { $all } from '../util/query-selector';
 
 export class ReviewStatusColumn {
-  public readonly reviewStatus: SSOT<ReviewStatus>;
+  private constructor(
+    private readonly $ele: HTMLDivElement,
+    public readonly props: {
+      readonly reviewStatus: SSOT<ReviewStatus>;
+      readonly isDisplay: SSOT<boolean>;
+    },
+  ) {}
 
-  public constructor(public readonly dom: HTMLDivElement, pullRequestPageUrl: string) {
-    const status = new ReviewStatus(pullRequestPageUrl);
-    for (const row of $all<HTMLDivElement>(this.dom, 'div')) {
+  public static async mount($ele: HTMLDivElement, reviewStatus: SSOT<ReviewStatus>, isDisplay: SSOT<boolean>) {
+    const self = new this($ele, { reviewStatus, isDisplay });
+
+    self.props.reviewStatus.onChangeWithRun(self.render.bind(self));
+    self.props.isDisplay.onChangeWithRun((onOrOff) => {
+      self.$ele.style.display = onOrOff ? 'block' : 'none';
+    });
+
+    return self;
+  }
+
+  public static parseStatusFromDom(parent: HTMLDivElement) {
+    const status = new ReviewStatus();
+    for (const row of $all<HTMLDivElement>(parent, 'div')) {
       const result = row.dataset.reviewResult as ReviewResult;
       for (const img of $all<HTMLImageElement>(row, `.${USER_ICON_CLASSNAME}`)) {
         const username = img.dataset.username!;
-        status.push({ result, reviewer: { name: username, iconUrl: img.src } });
+        status.add({ result, reviewer: { name: username, iconUrl: img.src } });
       }
     }
-    this.reviewStatus = new SSOT(status, this.onReviewStatusChange.bind(this));
+    return status;
   }
 
-  private onReviewStatusChange(status: ReviewStatus) {
-    while (this.dom.firstChild) {
-      this.dom.removeChild(this.dom.firstChild);
+  private render() {
+    while (this.$ele.firstChild) {
+      this.$ele.removeChild(this.$ele.firstChild);
     }
     for (const result of STATUS_DOM_ROW_ORDER) {
-      const reviewerIcons = status[result].map(({ reviewer }) => userIcon(reviewer));
+      const reviewerIcons = [...this.props.reviewStatus.value.reviewsOf(result)].map(({ reviewer }) =>
+        userIcon(reviewer),
+      );
       if (reviewerIcons.length === 0) {
         continue;
       }
       const row = h('div', [reviewResultIcon(result), ...reviewerIcons]);
       row.dataset.reviewResult = result;
-      this.dom.append(row);
+      this.$ele.append(row);
     }
   }
 }

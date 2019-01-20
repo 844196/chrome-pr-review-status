@@ -1,17 +1,15 @@
-import { config } from '../external/config';
 import { PullRequestListPageImpl } from '../external/pr-list-page';
-import { injectReviewStatus } from '../usecase/inject-review-status';
+import { ReviewStatusRepositoryImpl } from '../external/review-status';
+import { InjectReviewStatus } from '../usecase/inject-review-status';
 
 (async () => {
-  const page = new PullRequestListPageImpl(
-    await config.isDisplayDefault,
-    await config.enableBackgroundColor,
-    await config.debugUsername,
-  );
+  const page = await PullRequestListPageImpl.mount();
 
-  if (page.alreadyProcessed) {
+  if (page.isAlreadyProcessed) {
     return;
   }
 
-  await page.doInjectReviewStatus(injectReviewStatus);
+  const repository = new ReviewStatusRepositoryImpl();
+  const usecase = new InjectReviewStatus(repository);
+  await page.doInjectReviewStatus(usecase.invoke.bind(usecase));
 })();
