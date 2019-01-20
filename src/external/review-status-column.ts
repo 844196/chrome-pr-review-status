@@ -18,8 +18,8 @@ export class ReviewStatusColumn {
   public static async mount($ele: HTMLDivElement, reviewStatus: SSOT<ReviewStatus>, isDisplay: SSOT<boolean>) {
     const self = new this($ele, { reviewStatus, isDisplay });
 
-    self.props.reviewStatus.onChangeWithRun(self.render.bind(self));
-    self.props.isDisplay.onChangeWithRun((onOrOff) => {
+    self.props.reviewStatus.watchImmediately(self.render.bind(self));
+    self.props.isDisplay.watchImmediately((onOrOff) => {
       self.$ele.style.display = onOrOff ? 'block' : 'none';
     });
 

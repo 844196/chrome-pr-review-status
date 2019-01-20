@@ -1,40 +1,40 @@
 import { TypedEvent, TypedEventHandler } from './typed-event';
 
 export class SSOT<T> {
-  private readonly event = new TypedEvent<T>();
+  private readonly managedValueChange = new TypedEvent<T>();
 
-  public constructor(private self: T, handler?: TypedEventHandler<T>) {
+  public constructor(private managedValue: T, handler?: TypedEventHandler<T>) {
     if (handler) {
-      this.onChange(handler);
+      this.watch(handler);
     }
   }
 
   get value() {
-    return this.self;
+    return this.managedValue;
   }
 
-  public onChange(handler: TypedEventHandler<T>) {
-    this.event.on(handler);
+  public watch(handler: TypedEventHandler<T>) {
+    this.managedValueChange.on(handler);
     return this;
   }
 
-  public onChangeWithRun(handler: TypedEventHandler<T>) {
-    handler(this.value);
-    this.onChange(handler);
+  public watchImmediately(handler: TypedEventHandler<T>) {
+    handler(this.managedValue);
+    this.watch(handler);
     return this;
   }
 
   public pipe(other: SSOT<T>) {
-    this.onChange((value) => other.change(value));
+    this.watch((value) => other.change(value));
     return this;
   }
 
-  public change(value: T) {
-    this.self = value;
-    this.event.emit(value);
+  public change(given: T) {
+    this.managedValue = given;
+    this.managedValueChange.emit(given);
   }
 
   public emit() {
-    this.event.emit(this.value);
+    this.managedValueChange.emit(this.managedValue);
   }
 }

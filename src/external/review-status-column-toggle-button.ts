@@ -45,7 +45,7 @@ export class ReviewStatusColumnToggleButton {
       },
     };
 
-    isDisplayReviewStatusColumn.onChangeWithRun((changed) => {
+    isDisplayReviewStatusColumn.watchImmediately((changed) => {
       const text = changed
         ? `${octicons.fold.toSVG()}&nbsp;Hide review status`
         : `${octicons.unfold.toSVG()}&nbsp;Show review status`;
@@ -59,7 +59,7 @@ export class ReviewStatusColumnToggleButton {
     $data.text.pipe(button.$props.content);
 
     $data.state
-      .onChangeWithRun((changed) => {
+      .watchImmediately((changed) => {
         switch (changed) {
           case 'initialized':
             $data.text.change('Please wait...');
@@ -72,9 +72,9 @@ export class ReviewStatusColumnToggleButton {
             break;
         }
       })
-      .onChangeWithRun((changed) => button.$props.disabled.change(changed !== 'awaitingClick'));
+      .watchImmediately((changed) => button.$props.disabled.change(changed !== 'awaitingClick'));
 
-    $data.progress.value.onChange((changed) => {
+    $data.progress.value.watch((changed) => {
       button.$props.content.change(`Fetching... (${changed}/${$data.progress.max.value})`);
     });
 
@@ -96,17 +96,17 @@ class Button {
   ) {}
 
   public static async mount($ele: HTMLButtonElement, $props: Button['$props']) {
-    $props.content.onChangeWithRun((changed) => {
+    $props.content.watchImmediately((changed) => {
       $ele.innerHTML = changed;
     });
 
-    $props.dataset.onChangeWithRun((changed) => {
+    $props.dataset.watchImmediately((changed) => {
       for (const [k, v] of Object.entries(changed)) {
         $ele.dataset[k] = v;
       }
     });
 
-    $props.disabled.onChangeWithRun((changed) => {
+    $props.disabled.watchImmediately((changed) => {
       $ele.disabled = changed;
     });
 

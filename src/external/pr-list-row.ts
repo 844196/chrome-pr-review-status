@@ -29,17 +29,17 @@ export class PullRequestListRowImpl implements PullRequestListRow {
 
     const props = { reviewStatus };
     const data = {
-      myReviewState: new SSOT(reviewState($ele.dataset.myReviewState).getOrElse('notReviewer')).onChange((changed) => {
+      myReviewState: new SSOT(reviewState($ele.dataset.myReviewState).getOrElse('notReviewer')).watch((changed) => {
         $ele.dataset.myReviewState = changed;
       }),
     };
 
     const self = new this($ele, props, data);
 
-    self.$props.reviewStatus.onChange(self.computeMyReviewState.bind(self));
-    (await store.loginUsername).onChange(self.computeMyReviewState.bind(self));
-    self.$data.myReviewState.onChange(self.updateBackgroundColor.bind(self));
-    (await store.colorCoded).onChange(self.updateBackgroundColor.bind(self));
+    self.$props.reviewStatus.watch(self.computeMyReviewState.bind(self));
+    (await store.loginUsername).watch(self.computeMyReviewState.bind(self));
+    self.$data.myReviewState.watch(self.updateBackgroundColor.bind(self));
+    (await store.colorCoded).watch(self.updateBackgroundColor.bind(self));
 
     await self.computeMyReviewState();
 
