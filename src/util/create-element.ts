@@ -6,7 +6,7 @@ type EventMap = HTMLElementEventMap;
 type IfEquals<X, Y, A = X, B = never> = (<T>() => T extends X ? 1 : 2) extends (<T>() => T extends Y ? 1 : 2) ? A : B;
 type WritableKeys<T> = { [P in keyof T]-?: IfEquals<{ [Q in P]: T[P] }, { -readonly [Q in P]: T[P] }, P> }[keyof T];
 
-export interface NodeData<T> {
+interface NodeData<T> {
   props?: Partial<SubType<Pick<T, WritableKeys<T>>, string | number | boolean>>;
   style?: Partial<SubType<Pick<CSSMap, WritableKeys<CSSMap>>, string | null>>;
   class?: string | string[];
@@ -14,7 +14,7 @@ export interface NodeData<T> {
 }
 const isNodeData = <T>(v: any): v is NodeData<T> => isNodeChildren(v) === false;
 
-export type NodeChildren = string | Array<Node | string>;
+type NodeChildren = string | Array<Node | string>;
 const isNodeChildren = (v: any): v is NodeChildren => {
   if (typeof v === 'string') {
     return true;

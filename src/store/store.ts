@@ -1,6 +1,6 @@
 import { SSOT } from '../common/ssot';
 
-export const localStorageValue = async <T>(key: string, defaultValue: T) => {
+const localStorageValue = async <T>(key: string, defaultValue: T) => {
   const value = await new Promise<T>((ok) => chrome.storage.local.get({ [key]: defaultValue }, (map) => ok(map[key])));
   const ssot = new SSOT(value, (changed) => chrome.storage.local.set({ [key]: changed }));
 
