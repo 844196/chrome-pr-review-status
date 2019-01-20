@@ -3,8 +3,8 @@
   <a href="https://github.com/844196/chrome-pr-review-status/releases/latest">
     <img src="https://img.shields.io/github/release/844196/chrome-pr-review-status.svg" />
   </a>
-  <a href="https://circleci.com/gh/844196/chrome-pr-review-status">
-    <img src="https://circleci.com/gh/844196/chrome-pr-review-status.svg?style=shield" />
+  <a href="https://travis-ci.org/844196/chrome-pr-review-status">
+    <img src="https://img.shields.io/travis/844196/chrome-pr-review-status.svg" />
   </a>
 </p>
 

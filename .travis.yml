@@ -7,3 +7,14 @@ install:
 script:
   - yarn ci
   - yarn build
+before_deploy:
+  - NAME=chrome-pr-review-status-${TRAVIS_TAG} yarn zip
+deploy:
+  provider: releases
+  api_key:
+    secure: d0M+f6vXf/2WB1FVpatBXxRDFBtS6f3i7zL/UB0/xekuQ44PgmOinNlXj56qN+A6zrCcp8ZrzwIICqmiFMkfSSHqMgDx8KlBlix9thN3KX+x8Lsl6htnZxBkuezeNa7iE9zsLNlFsAQOaDBn3Jbe4nEYWNQAJ/XWx+AwPZ9S4ZtfV7WpjXrNwOrEJDq+6zeiEuFzuEcO0PnSnVqxvaf4bvQPUbUfGDIQMnkMvkV74jFYW/2Amsvnef0hYDgf7FcKbd/6980qokFDAp8EKO3ZrmSVKVdWquJzs4M+eX1zqGw3mYo+EZFZJvnUOnFeugAq3E6NyewqfFudAa6uH/PVxdIcp99uaDE9cRhA3gesMaEbEpMRF7WA1BgKMnw5EV7gX/8ac8tPTjUQpXG3fKeYynItLEdvBFj9BIy/im6PTMh7RZqPv3Bx8IxvVE/00tAkywohr1l3ZiGwxkmRUUh+9e0jtKjlEL7Ql4sDFsuy9nbjHLZbjnCLyLev0MeYCqSmKtRDPK3uwXz+uq3hcVzbKq4TvOA5g4pkxbCB+tCzvR4XiHEB3B1jOaxsQbg3eOWJy+/gidAS88/WhzI9HMwW2FjrmkdbMwQ0bz4ih9jx66xP3wPcKF5LveGysd3ltxpqTHXl0TmlJbzBjOnwC2pV937ewgDic4vwtbKZjKpCeCA=
+  file_glob: true
+  file: chrome-pr-review-status-*.zip
+  skip_cleanup: true
+  on:
+    tags: true
