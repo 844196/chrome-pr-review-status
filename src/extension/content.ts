@@ -3,7 +3,7 @@ import { ReviewStatusRepositoryImpl } from '../external/review-status';
 import { InjectReviewStatus } from '../usecase/inject-review-status';
 
 (async () => {
-  const page = await PullRequestListPageImpl.mount();
+  const page = await PullRequestListPageImpl.mount(document);
 
   if (page.isAlreadyProcessed) {
     return;
