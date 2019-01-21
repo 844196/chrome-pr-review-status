@@ -82,7 +82,6 @@ export class ReviewStatusColumnToggleButton {
   }
 }
 
-// tslint:disable-next-line:max-classes-per-file
 class Button {
   private constructor(
     public readonly $props: {
