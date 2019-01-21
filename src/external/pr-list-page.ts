@@ -11,7 +11,6 @@ export class PullRequestListPageImpl implements PullRequestListPage {
   private constructor(
     private readonly button: ReviewStatusColumnToggleButton,
     public readonly rows: PullRequestListRowImpl[],
-    public readonly isAlreadyProcessed: boolean,
   ) {}
 
   public static async mount(doc: Document) {
@@ -19,10 +18,10 @@ export class PullRequestListPageImpl implements PullRequestListPage {
       (await store.loginUsername).change($meta.content);
     });
 
-    const [button, isAlreadyProcessed] = await makeButton(doc);
+    const button = await makeButton(doc);
     const rows = await makeRows(doc);
 
-    return new this(button, rows, isAlreadyProcessed);
+    return new this(button, rows);
   }
 
   public async doInjectReviewStatus(func: (page: PullRequestListPage, progress: SSOT<number>) => Promise<void>) {
@@ -36,11 +35,8 @@ export class PullRequestListPageImpl implements PullRequestListPage {
   }
 }
 
-const makeButton = async (doc: Document): Promise<[ReviewStatusColumnToggleButton, boolean]> => {
-  const insertedDom = select<HTMLButtonElement>(`#${TOGGLE_STATUS_BUTTON_ID}`, doc);
-  const isInserted = insertedDom.isSome();
-
-  const buttonDom = insertedDom.getOrElseL(() => {
+const makeButton = async (doc: Document): Promise<ReviewStatusColumnToggleButton> => {
+  const buttonDom = select<HTMLButtonElement>(`#${TOGGLE_STATUS_BUTTON_ID}`, doc).getOrElseL(() => {
     const btn = h('button', {
       props: {
         id: TOGGLE_STATUS_BUTTON_ID,
@@ -51,7 +47,7 @@ const makeButton = async (doc: Document): Promise<[ReviewStatusColumnToggleButto
     return btn;
   });
 
-  return [await ReviewStatusColumnToggleButton.mount(buttonDom), isInserted];
+  return await ReviewStatusColumnToggleButton.mount(buttonDom);
 };
 
 const makeRow = async (rowDom: HTMLDivElement) => {

@@ -24,7 +24,7 @@ export class PullRequestListRowImpl implements PullRequestListRow {
 
   public static async mount($ele: HTMLDivElement) {
     const columnDom = $<HTMLDivElement>($ele, `.${STATUS_DOM_CLASSNAME}`)!;
-    const reviewStatus = new SSOT(ReviewStatusColumn.parseStatusFromDom(columnDom));
+    const reviewStatus = new SSOT(ReviewStatus.empty());
     await ReviewStatusColumn.mount(columnDom, reviewStatus, await store.isDisplayReviewStatusColumn);
 
     const props = { reviewStatus };

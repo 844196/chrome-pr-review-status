@@ -5,10 +5,6 @@ import { InjectReviewStatus } from '../usecase/inject-review-status';
 (async () => {
   const page = await PullRequestListPageImpl.mount(document);
 
-  if (page.isAlreadyProcessed) {
-    return;
-  }
-
   const repository = new ReviewStatusRepositoryImpl();
   const usecase = new InjectReviewStatus(repository);
   await page.doInjectReviewStatus(usecase.invoke.bind(usecase));

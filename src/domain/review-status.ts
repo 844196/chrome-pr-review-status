@@ -13,6 +13,10 @@ export class ReviewStatus {
     unreviewed: new Set(),
   };
 
+  public static empty(): ReviewStatus {
+    return new this();
+  }
+
   public add<T extends ReviewResult>(review: Review<T>): this {
     (this.container[review.result] as ReviewSet<T>).add(review);
     return this;

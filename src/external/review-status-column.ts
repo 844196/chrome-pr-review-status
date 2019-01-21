@@ -4,7 +4,6 @@ import { STATUS_DOM_ROW_ORDER } from '../constant';
 import { Reviewer, ReviewResult } from '../domain/review';
 import { ReviewStatus } from '../domain/review-status';
 import { h } from '../util/create-element';
-import { $all } from '../util/query-selector';
 
 export class ReviewStatusColumn {
   private constructor(
@@ -24,18 +23,6 @@ export class ReviewStatusColumn {
     });
 
     return self;
-  }
-
-  public static parseStatusFromDom(parent: HTMLDivElement) {
-    const status = new ReviewStatus();
-    for (const row of $all<HTMLDivElement>(parent, 'div')) {
-      const result = row.dataset.reviewResult as ReviewResult;
-      for (const img of $all<HTMLImageElement>(row, `.${USER_ICON_CLASSNAME}`)) {
-        const username = img.dataset.username!;
-        status.add({ result, reviewer: { name: username, iconUrl: img.src } });
-      }
-    }
-    return status;
   }
 
   private render() {
