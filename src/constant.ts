@@ -14,3 +14,11 @@ export const ROW_BG_COLOR_MAP: { [_ in ReviewState]: string } = {
 export const STATUS_DOM_CLASSNAME = 'review-status';
 
 export const TOGGLE_STATUS_BUTTON_ID = 'status-display-toggle-btn';
+
+export const INDEXED_DB_NAME = 'chrome-pr-review-status';
+
+export const INDEXED_DB_VERSION = 1;
+
+export const INDEXED_DB_CACHE_TABLE_NAME = 'cachedReviewStatus';
+
+export const INDEXED_DB_CACHE_TABLE_MAX_AGE = 60;
