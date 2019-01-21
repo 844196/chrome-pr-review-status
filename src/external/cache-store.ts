@@ -1,45 +1,55 @@
 import Dexie from 'dexie';
-import { right } from 'fp-ts/lib/Either';
-import { fromNullable, none, Option } from 'fp-ts/lib/Option';
-import { fromEither, tryCatch } from 'fp-ts/lib/TaskEither';
-import { Cacheable, CacheKey, CacheStore, Inflater, RawCacheableValue } from '../domain/cache-store';
-
-export type DexieCacheStoreTable<R> = Dexie.Table<CacheRecord<R>, CacheKey>;
+import { fromNullable, none, some } from 'fp-ts/lib/Option';
+import { tryCatch } from 'fp-ts/lib/TaskEither';
+import { Cacheable, CacheStore, Inflater } from '../domain/cache-store';
 
 const DexieCacheStoreTablePK = 'cacheKey';
 const DexieCacheStoreTableTimestamp = 'cachedAt';
 
-export const DexieCacheStoreTableSchema = `${DexieCacheStoreTablePK}, ${DexieCacheStoreTableTimestamp}`;
-
-interface CacheRecord<R extends RawCacheableValue> {
-  [DexieCacheStoreTablePK]: CacheKey;
+interface CacheRecord<C extends Cacheable<any>> {
+  [DexieCacheStoreTablePK]: C['cacheKey'];
   [DexieCacheStoreTableTimestamp]: number;
-  cachedValue: R;
+  cachedValue: ReturnType<C['toJSON']>;
 }
 
-export class DexieCacheStore<R extends RawCacheableValue, C extends Cacheable<R>> implements CacheStore<R, C> {
-  public constructor(private readonly table: DexieCacheStoreTable<R>, private readonly cacheMaxAge: number) {}
+export type DexieCacheStoreTable<C extends Cacheable<any>> = Dexie.Table<CacheRecord<C>, C['cacheKey']>;
 
-  public async get(cacheKey: CacheKey, inflater: Inflater<R, C>) {
+export const DexieCacheStoreTableSchema = `${DexieCacheStoreTablePK}, ${DexieCacheStoreTableTimestamp}`;
+
+export class DexieCacheStore<C extends Cacheable<any>> implements CacheStore<C> {
+  public constructor(private readonly table: DexieCacheStoreTable<C>, private readonly cacheMaxAge: number) {}
+
+  public async get(cacheKey: C['cacheKey'], inflater: Inflater<C>) {
     return tryCatch(() => this.table.get(cacheKey), String)
       .map(fromNullable)
-      .chain((record) => {
-        const nowSec = Math.ceil(Date.now() / 1000);
-        return record.isSome() && nowSec - record.value.cachedAt >= this.cacheMaxAge
-          ? tryCatch(() => this.del(cacheKey), String).map<Option<CacheRecord<R>>>(() => none)
-          : fromEither(right(record));
-      })
-      .map((record) => record.map((r) => inflater(r.cachedValue)))
+      .map((record) => record.filter(({ cachedAt }) => nowSec() - cachedAt <= this.cacheMaxAge))
+      .map((record) => record.map(({ cachedValue }) => inflater(cachedValue)))
       .run();
   }
 
   public async set(cacheable: C) {
-    const cachedAt = Math.ceil(Date.now() / 1000);
-    const record = { cacheKey: cacheable.cacheKey, cachedAt, cachedValue: cacheable.deflate() };
+    const record = {
+      cacheKey: cacheable.cacheKey,
+      cachedAt: nowSec(),
+      cachedValue: cacheable.toJSON(),
+    };
     return tryCatch(() => this.table.put(record), String).run();
   }
 
-  public async del(cacheKey: CacheKey) {
+  public async del(cacheKey: C['cacheKey']) {
     return tryCatch(() => this.table.delete(cacheKey), String).run();
   }
+
+  public async delExpiredAll() {
+    const exec = () =>
+      this.table
+        .where(DexieCacheStoreTableTimestamp)
+        .below(nowSec() - this.cacheMaxAge)
+        .delete();
+    return await tryCatch(exec, String)
+      .map((affected) => (affected > 0 ? some(affected) : none))
+      .run();
+  }
 }
+
+const nowSec = () => Math.ceil(Date.now() / 1000);

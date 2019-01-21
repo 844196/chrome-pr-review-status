@@ -6,11 +6,14 @@ import { Review, ReviewResult } from './review';
 
 type ReviewSet<T extends ReviewResult> = Set<Review<T>>;
 
-export type RawReviewStatus = {
-  [P in ReviewResult]: Array<Review<P>> // 一意であることは考慮しない
-} & { url: string };
+interface ReviewStatusJSON {
+  url: string;
+  reviews: {
+    [P in ReviewResult]: Array<Review<P>> // 一意であることは考慮しない
+  };
+}
 
-export class ReviewStatus implements Cacheable<RawReviewStatus> {
+export class ReviewStatus implements Cacheable<ReviewStatusJSON> {
   private readonly container: { readonly [P in ReviewResult]: ReviewSet<P> } = {
     approved: new Set(),
     leftComments: new Set(),
@@ -24,23 +27,25 @@ export class ReviewStatus implements Cacheable<RawReviewStatus> {
     return new this('');
   }
 
-  public static inflate(raw: RawReviewStatus): ReviewStatus {
-    const self = new ReviewStatus(raw.url);
-    for (const result of ['approved', 'leftComments', 'requestedChanges', 'unreviewed'] as ReviewResult[]) {
-      for (const review of raw[result]) {
+  public static fromJSON(json: ReviewStatusJSON): ReviewStatus {
+    const self = new ReviewStatus(json.url);
+    for (const [, reviews] of Object.entries(json.reviews)) {
+      for (const review of reviews) {
         self.add(review);
       }
     }
     return self;
   }
 
-  public deflate(): RawReviewStatus {
+  public toJSON(): ReviewStatusJSON {
     return {
       url: this.url,
-      approved: [...this.reviewsOf('approved')],
-      leftComments: [...this.reviewsOf('leftComments')],
-      requestedChanges: [...this.reviewsOf('requestedChanges')],
-      unreviewed: [...this.reviewsOf('unreviewed')],
+      reviews: {
+        approved: [...this.reviewsOf('approved')],
+        leftComments: [...this.reviewsOf('leftComments')],
+        requestedChanges: [...this.reviewsOf('requestedChanges')],
+        unreviewed: [...this.reviewsOf('unreviewed')],
+      },
     };
   }
 
@@ -70,15 +75,14 @@ export class ReviewStatus implements Cacheable<RawReviewStatus> {
 
 export class ReviewStatusRepository {
   public constructor(
-    private readonly cacheStore: CacheStore<RawReviewStatus, ReviewStatus>,
+    private readonly cacheStore: CacheStore<ReviewStatus>,
     private readonly connection: GithubConnection,
   ) {}
 
   public async findByUrl(url: string): Promise<Either<string, ReviewStatus>> {
-    const logError = (message: string) => (reason: any) =>
-      console.error(`error at ${url}: ${message} - ${String(reason)}`);
+    const logError = (message: string) => (reason: string) => console.error(`error at ${url}: ${message} - ${reason}`);
 
-    const cache = (await this.cacheStore.get(url, ReviewStatus.inflate))
+    const cache = (await this.cacheStore.get(url, ReviewStatus.fromJSON))
       .mapLeft(logError('キャッシュの取得に失敗'))
       .getOrElse(none);
     if (cache.isSome()) {

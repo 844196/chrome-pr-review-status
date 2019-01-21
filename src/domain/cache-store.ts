@@ -1,22 +1,22 @@
 import { Either } from 'fp-ts/lib/Either';
 import { Option } from 'fp-ts/lib/Option';
 
-export type CacheKey = string;
+type CacheKey = string | number;
 
 // tslint:disable-next-line:no-empty-interface
-export interface RawCacheableValue {
+interface CacheableJSON {
   // マーカインターフェイス
 }
 
-export interface Cacheable<R extends RawCacheableValue> {
+export interface Cacheable<J extends CacheableJSON> {
   readonly cacheKey: CacheKey;
-  deflate(): R;
+  toJSON(): J;
 }
 
-export type Inflater<R extends RawCacheableValue, C extends Cacheable<R>> = (raw: R) => C;
+export type Inflater<C extends Cacheable<any>> = (json: ReturnType<C['toJSON']>) => C;
 
-export interface CacheStore<R extends RawCacheableValue, C extends Cacheable<R>> {
-  get(cacheKey: CacheKey, inflater: Inflater<R, C>): Promise<Either<string, Option<C>>>;
-  set(cacheable: C): Promise<Either<string, string>>;
-  del(cacheKey: CacheKey): Promise<Either<string, void>>;
+export interface CacheStore<C extends Cacheable<any>> {
+  get(cacheKey: C['cacheKey'], inflater: Inflater<C>): Promise<Either<string, Option<C>>>;
+  set(cacheable: C): Promise<Either<string, C['cacheKey']>>;
+  del(cacheKey: C['cacheKey']): Promise<Either<string, void>>;
 }
