@@ -23,10 +23,6 @@ export class ReviewStatus implements Cacheable<ReviewStatusJSON> {
 
   public constructor(public readonly url: string) {}
 
-  public static empty(): ReviewStatus {
-    return new this('');
-  }
-
   public static fromJSON(json: ReviewStatusJSON): ReviewStatus {
     const self = new ReviewStatus(json.url);
     for (const [, reviews] of Object.entries(json.reviews)) {

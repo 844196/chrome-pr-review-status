@@ -11,7 +11,7 @@ export class InjectReviewStatus {
       if (reviewStatus.isLeft()) {
         throw new Error(reviewStatus.value);
       }
-      row.$props.reviewStatus.change(reviewStatus.value);
+      row.$data.reviewStatus.change(reviewStatus.value);
     });
 
     let done = 0;

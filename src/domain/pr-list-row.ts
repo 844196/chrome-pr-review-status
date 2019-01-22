@@ -3,7 +3,7 @@ import { ReviewStatus } from './review-status';
 
 export interface PullRequestListRow {
   readonly pullRequestPageUrl: string;
-  readonly $props: {
+  readonly $data: {
     readonly reviewStatus: SSOT<ReviewStatus>;
   };
 }
