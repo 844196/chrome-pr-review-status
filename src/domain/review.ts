@@ -1,5 +1,7 @@
 export type ReviewResult = 'unreviewed' | 'leftComments' | 'requestedChanges' | 'approved';
 
+export type ReviewState = ReviewResult | 'notReviewer';
+
 export interface Reviewer {
   name: string;
   iconUrl: string;

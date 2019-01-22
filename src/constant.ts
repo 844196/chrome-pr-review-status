@@ -1,5 +1,4 @@
-import { ReviewResult } from './domain/review';
-import { ReviewState } from './domain/review-state';
+import { ReviewResult, ReviewState } from './domain/review';
 
 export const STATUS_DOM_ROW_ORDER: ReviewResult[] = ['approved', 'requestedChanges', 'leftComments', 'unreviewed'];
 

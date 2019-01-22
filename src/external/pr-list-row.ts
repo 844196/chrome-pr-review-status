@@ -1,7 +1,7 @@
 import { SSOT } from '../common/ssot';
 import { ROW_BG_COLOR_MAP, STATUS_DOM_CLASSNAME } from '../constant';
 import { PullRequestListRow } from '../domain/pr-list-row';
-import { ReviewState } from '../domain/review-state';
+import { ReviewState } from '../domain/review';
 import { ReviewStatus } from '../domain/review-status';
 import { store } from '../store/store';
 import { $ } from '../util/query-selector';
