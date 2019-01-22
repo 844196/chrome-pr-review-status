@@ -1,8 +1,8 @@
+import { React } from 'dom-chef/react';
 import { SSOT } from '../common/ssot';
 import { STATUS_DOM_CLASSNAME, TOGGLE_STATUS_BUTTON_ID } from '../constant';
 import { PullRequestListPage } from '../domain/pr-list-page';
 import { store } from '../store/store';
-import { h } from '../util/create-element';
 import { select, selectAll } from '../util/query-selector';
 import { PullRequestListRowImpl } from './pr-list-row';
 import { ReviewStatusColumnToggleButton } from './review-status-column-toggle-button';
@@ -37,14 +37,11 @@ export class PullRequestListPageImpl implements PullRequestListPage {
 
 const makeButton = async (doc: Document): Promise<ReviewStatusColumnToggleButton> => {
   const buttonDom = select<HTMLButtonElement>(`#${TOGGLE_STATUS_BUTTON_ID}`, doc).getOrElseL(() => {
-    const btn = h('button', {
-      props: {
-        id: TOGGLE_STATUS_BUTTON_ID,
-      },
-      class: ['btn', 'btn-default', 'float-right', 'mr-2'],
-    });
+    const btn = (
+      <button id={TOGGLE_STATUS_BUTTON_ID} className={['btn', 'btn-default', 'float-right', 'mr-2'].join(' ')} />
+    );
     select('.subnav', doc).map(($nav) => $nav.append(btn));
-    return btn;
+    return (btn as any) as HTMLButtonElement;
   });
 
   return await ReviewStatusColumnToggleButton.mount(buttonDom);
@@ -55,12 +52,9 @@ const makeRow = async (rowDom: HTMLDivElement) => {
   const insertedColumnDom = select(`.${STATUS_DOM_CLASSNAME}`, rowDom);
 
   if (title.isSome() && insertedColumnDom.isNone()) {
-    const columnDom = h('div', {
-      style: {
-        height: '105.312px',
-      },
-      class: [STATUS_DOM_CLASSNAME, 'col-2', 'p-2', 'float-left'],
-    });
+    const columnDom = (
+      <div className={[STATUS_DOM_CLASSNAME, 'col-2', 'p-2', 'float-left'].join(' ')} style={{ height: '105.312px' }} />
+    );
     title.value.classList.replace('col-9', 'col-7');
     title.value.parentNode!.insertBefore(columnDom, title.value.nextSibling);
   }

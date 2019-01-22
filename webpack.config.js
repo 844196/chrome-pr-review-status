@@ -9,7 +9,7 @@ module.exports = {
   entry: {
     background: extension('background.ts'),
     content: extension('content.ts'),
-    'popup/index': extension('popup/index.ts'),
+    'popup/index': extension('popup/index.tsx'),
   },
   output: {
     path: path.join(__dirname, 'dist'),
@@ -18,7 +18,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.ts$/,
+        test: /\.tsx?$/,
         use: 'ts-loader',
       },
     ],
@@ -26,6 +26,7 @@ module.exports = {
   resolve: {
     extensions: [
       '.ts',
+      '.tsx',
       '.js',
     ],
   },

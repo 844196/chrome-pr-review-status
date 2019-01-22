@@ -1,9 +1,9 @@
+import { React } from 'dom-chef/react';
 import * as octicons from 'octicons';
 import { SSOT } from '../common/ssot';
 import { STATUS_DOM_ROW_ORDER } from '../constant';
 import { Reviewer, ReviewResult } from '../domain/review';
 import { ReviewStatus } from '../domain/review-status';
-import { h } from '../util/create-element';
 
 export class ReviewStatusColumn {
   private constructor(
@@ -16,12 +16,10 @@ export class ReviewStatusColumn {
 
   public static async mount($ele: HTMLDivElement, reviewStatus: SSOT<ReviewStatus>, isDisplay: SSOT<boolean>) {
     const self = new this($ele, { reviewStatus, isDisplay });
-
     self.props.reviewStatus.watchImmediately(self.render.bind(self));
     self.props.isDisplay.watchImmediately((onOrOff) => {
-      self.$ele.style.display = onOrOff ? 'block' : 'none';
+      $ele.style.display = onOrOff ? 'block' : 'none';
     });
-
     return self;
   }
 
@@ -30,52 +28,42 @@ export class ReviewStatusColumn {
       this.$ele.removeChild(this.$ele.firstChild);
     }
     for (const result of STATUS_DOM_ROW_ORDER) {
-      const reviewerIcons = [...this.props.reviewStatus.value.reviewsOf(result)].map(({ reviewer }) =>
-        userIcon(reviewer),
-      );
+      const reviewerIcons = [...this.props.reviewStatus.value.reviewsOf(result)]
+        .map((review) => review.reviewer)
+        .map(userIcon);
       if (reviewerIcons.length === 0) {
         continue;
       }
-      const row = h('div', [reviewResultIcon(result), ...reviewerIcons]);
-      row.dataset.reviewResult = result;
-      this.$ele.append(row);
+      this.$ele.append(
+        <div>
+          {reviewResultIcon(result)}
+          {reviewerIcons}
+        </div>,
+      );
     }
   }
 }
 
 const USER_ICON_CLASSNAME = 'avatar';
-const userIcon = ({ name, iconUrl }: Reviewer) => {
-  const dom = h('img', {
-    props: {
-      src: iconUrl,
-    },
-    class: USER_ICON_CLASSNAME,
-    style: {
-      marginLeft: '2px',
-      marginRight: '2px',
-      width: '20px',
-      height: '20px',
-    },
-  });
-  dom.dataset.username = name;
-  return dom;
+const userIcon = ({ iconUrl }: Reviewer) => {
+  return (
+    <img
+      src={iconUrl}
+      className={USER_ICON_CLASSNAME}
+      style={{ marginLeft: '2px', marginRight: '2px', width: '20px', height: '20px' }}
+    />
+  );
 };
 
 const reviewResultIcon = (result: ReviewResult) => {
   const { svg, colorClass } = resultIconMap[result];
-  return h('span', {
-    props: {
-      innerHTML: svg,
-    },
-    class: colorClass,
-    style: {
-      display: 'inline-block',
-      textAlign: 'center',
-      verticalAlign: 'middle',
-      width: '20px',
-      height: '20px',
-    },
-  });
+  return (
+    <span
+      dangerouslySetInnerHTML={{ __html: svg }}
+      className={colorClass}
+      style={{ display: 'inline-block', textAlign: 'center', verticalAlign: 'middle', width: '20px', height: '20px' }}
+    />
+  );
 };
 
 const resultIconMap: {

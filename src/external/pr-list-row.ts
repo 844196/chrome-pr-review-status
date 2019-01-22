@@ -25,12 +25,10 @@ export class PullRequestListRowImpl implements PullRequestListRow {
     const reviewStatus = new SSOT(new ReviewStatus(''));
     await ReviewStatusColumn.mount(columnDom, reviewStatus, await store.isDisplayReviewStatusColumn);
 
-    const data = {
+    const self = new this($ele, {
       reviewStatus,
       myReviewState: new SSOT<ReviewState>('notReviewer'),
-    };
-
-    const self = new this($ele, data);
+    });
 
     self.$data.reviewStatus.watch(self.computeMyReviewState.bind(self));
     (await store.loginUsername).watch(self.computeMyReviewState.bind(self));
