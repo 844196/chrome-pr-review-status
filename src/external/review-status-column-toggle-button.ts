@@ -1,18 +1,15 @@
-import { fromNullable } from 'fp-ts/lib/Option';
 import * as octicons from 'octicons';
 import { SSOT } from '../common/ssot';
 import { TypedEvent } from '../common/typed-event';
 import { store } from '../store/store';
 
 type ButtonState = 'initialized' | 'displayProgress' | 'awaitingClick';
-const ButtonState = (v: string | undefined) => fromNullable<ButtonState>(v as any);
 
 export class ReviewStatusColumnToggleButton {
   private constructor(
+    private readonly button: Button,
     public readonly $data: {
       readonly state: SSOT<ButtonState>;
-      readonly text: SSOT<string>;
-      readonly awaitingText: SSOT<string>;
       readonly progress: {
         readonly value: SSOT<number>;
         readonly max: SSOT<number>;
@@ -21,64 +18,57 @@ export class ReviewStatusColumnToggleButton {
   ) {}
 
   public static async mount($ele: HTMLButtonElement) {
-    const buttonProps: Button['$props'] = {
+    const isDisplayReviewStatusColumn = await store.isDisplayReviewStatusColumn;
+
+    const button = await Button.mount($ele, {
       content: new SSOT(''),
       dataset: new SSOT({}),
       disabled: new SSOT(true),
-    };
-    const button = await Button.mount($ele, buttonProps);
-    const isDisplayReviewStatusColumn = await store.isDisplayReviewStatusColumn;
+    });
     button.$on.click.on(() => {
       const inverted = !isDisplayReviewStatusColumn.value;
       isDisplayReviewStatusColumn.change(inverted);
     });
 
-    const $data: ReviewStatusColumnToggleButton['$data'] = {
-      state: new SSOT(ButtonState($ele.dataset.state).getOrElse('initialized'), (changed) =>
-        button.$props.dataset.change({ state: changed }),
-      ),
-      text: new SSOT(''),
-      awaitingText: new SSOT(''),
+    const self = new this(button, {
+      state: new SSOT<ButtonState>('initialized'),
       progress: {
         value: new SSOT(0),
         max: new SSOT(0),
       },
-    };
-
-    isDisplayReviewStatusColumn.watchImmediately((changed) => {
-      const text = changed
-        ? `${octicons.fold.toSVG()}&nbsp;Hide review status`
-        : `${octicons.unfold.toSVG()}&nbsp;Show review status`;
-      $data.awaitingText.change(text);
-
-      if ($data.state.value === 'awaitingClick') {
-        $data.text.change($data.awaitingText.value);
-      }
     });
 
-    $data.text.pipe(button.$props.content);
+    isDisplayReviewStatusColumn.watch(self.computeButtonLabel.bind(self));
+    self.$data.state.watch(self.computeButtonLabel.bind(self)).watch(self.computeClickable.bind(self));
+    self.$data.progress.value.watch(self.computeButtonLabel.bind(self));
+    self.$data.progress.max.watch(self.computeButtonLabel.bind(self));
 
-    $data.state
-      .watchImmediately((changed) => {
-        switch (changed) {
-          case 'initialized':
-            $data.text.change('Please wait...');
-            break;
-          case 'displayProgress':
-            $data.text.change('Fetching...');
-            break;
-          case 'awaitingClick':
-            $data.text.change($data.awaitingText.value);
-            break;
-        }
-      })
-      .watchImmediately((changed) => button.$props.disabled.change(changed !== 'awaitingClick'));
+    await self.computeClickable();
+    await self.computeButtonLabel();
 
-    $data.progress.value.watch((changed) => {
-      button.$props.content.change(`Fetching... (${changed}/${$data.progress.max.value})`);
-    });
+    return self;
+  }
 
-    return new this($data);
+  private async computeClickable() {
+    this.button.$props.disabled.change(this.$data.state.value !== 'awaitingClick');
+  }
+
+  private async computeButtonLabel() {
+    switch (this.$data.state.value) {
+      case 'initialized':
+        this.button.$props.content.change('Please wait...');
+        break;
+      case 'displayProgress':
+        const progressText = `${this.$data.progress.value.value}/${this.$data.progress.max.value}`;
+        this.button.$props.content.change(`Fetching... (${progressText})`);
+        break;
+      case 'awaitingClick':
+        const text = (await store.isDisplayReviewStatusColumn).value
+          ? `${octicons.fold.toSVG()}&nbsp;Hide review status`
+          : `${octicons.unfold.toSVG()}&nbsp;Show review status`;
+        this.button.$props.content.change(text);
+        break;
+    }
   }
 }
 
