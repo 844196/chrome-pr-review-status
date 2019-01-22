@@ -4,7 +4,7 @@ import { PullRequestListRow } from '../domain/pr-list-row';
 import { ReviewState } from '../domain/review';
 import { ReviewStatus } from '../domain/review-status';
 import { store } from '../store/store';
-import { $ } from '../util/query-selector';
+import { select } from '../util/query-selector';
 import { ReviewStatusColumn } from './review-status-column';
 
 export class PullRequestListRowImpl implements PullRequestListRow {
@@ -17,11 +17,11 @@ export class PullRequestListRowImpl implements PullRequestListRow {
   ) {}
 
   get pullRequestPageUrl() {
-    return $<HTMLAnchorElement>(this.$ele, 'a.h4')!.href;
+    return select<HTMLAnchorElement>('a.h4', this.$ele).fold('', ($a) => $a.href);
   }
 
   public static async mount($ele: HTMLDivElement) {
-    const columnDom = $<HTMLDivElement>($ele, `.${STATUS_DOM_CLASSNAME}`)!;
+    const columnDom = select<HTMLDivElement>(`.${STATUS_DOM_CLASSNAME}`, $ele).toNullable()!;
     const reviewStatus = new SSOT(new ReviewStatus(''));
     await ReviewStatusColumn.mount(columnDom, reviewStatus, await store.isDisplayReviewStatusColumn);
 

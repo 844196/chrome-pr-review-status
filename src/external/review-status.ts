@@ -5,7 +5,7 @@ import { fromEither, tryCatch } from 'fp-ts/lib/TaskEither';
 import { Review, ReviewResult } from '../domain/review';
 import { GithubConnection, ReviewStatus } from '../domain/review-status';
 import { h } from '../util/create-element';
-import { $all, select } from '../util/query-selector';
+import { select, selectAll } from '../util/query-selector';
 
 const svgClassToResultMap = new StrMap<ReviewResult>({
   'octicon-check': 'approved',
@@ -21,7 +21,7 @@ export class GithubConnectionImpl implements GithubConnection {
       .chain((res) => tryCatch(() => res.text(), (reason) => String(reason)))
       .map((innerHTML) => h('html', { props: { innerHTML } }))
       .chain(($html) => fromEither(fromOption('')(select('.js-issue-sidebar-form', $html))))
-      .map(($form) => $all<HTMLSpanElement>($form, '[data-assignee-name]'))
+      .map(($form) => selectAll<HTMLSpanElement>('[data-assignee-name]', $form))
       .map((spans) => spans.map(this.reviewFromSpan))
       .map((reviews) => reviews.reduce((status, review) => status.add(review), new ReviewStatus(url)))
       .run()
