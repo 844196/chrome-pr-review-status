@@ -18,8 +18,7 @@ export class GithubConnectionImpl implements GithubConnection {
   private readonly domParser: DOMParser = new DOMParser();
 
   public async fetchReviewStatus(url: string): Promise<Either<string, ReviewStatus>> {
-    return await tryCatch(() => fetch(url, { credentials: 'include' }), (reason) => String(reason))
-      .chain((res) => tryCatch(() => res.text(), (reason) => String(reason)))
+    return await tryCatch(() => fetch(url, { credentials: 'include' }).then((res) => res.text()), String)
       .map((htmlText) => this.domParser.parseFromString(htmlText, 'text/html'))
       .chain(($html) => fromEither(fromOption('')(select('.js-issue-sidebar-form', $html))))
       .map(($form) => selectAll<HTMLSpanElement>('[data-assignee-name]', $form))
