@@ -22,7 +22,6 @@ export class ReviewStatusColumnToggleButton {
 
     const button = await Button.mount($ele, {
       content: new SSOT(''),
-      dataset: new SSOT({}),
       disabled: new SSOT(true),
     });
     button.$on.click.on(() => {
@@ -76,7 +75,6 @@ class Button {
   private constructor(
     public readonly $props: {
       content: SSOT<string>;
-      dataset: SSOT<{ [key: string]: string | undefined }>;
       disabled: SSOT<boolean>;
     },
     public readonly $on: {
@@ -87,12 +85,6 @@ class Button {
   public static async mount($ele: HTMLButtonElement, $props: Button['$props']) {
     $props.content.watchImmediately((changed) => {
       $ele.innerHTML = changed;
-    });
-
-    $props.dataset.watchImmediately((changed) => {
-      for (const [k, v] of Object.entries(changed)) {
-        $ele.dataset[k] = v;
-      }
     });
 
     $props.disabled.watchImmediately((changed) => {
