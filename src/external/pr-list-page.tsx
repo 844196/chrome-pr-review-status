@@ -48,14 +48,14 @@ const makeButton = async (doc: Document): Promise<ReviewStatusColumnToggleButton
 };
 
 const makeRow = async (rowDom: HTMLDivElement) => {
-  const title = select('.col-9', rowDom);
+  const title = select('.col-8', rowDom);
   const insertedColumnDom = select(`.${STATUS_DOM_CLASSNAME}`, rowDom);
 
   if (title.isSome() && insertedColumnDom.isNone()) {
     const columnDom = (
       <div className={[STATUS_DOM_CLASSNAME, 'col-2', 'p-2', 'float-left'].join(' ')} style={{ height: '105.312px' }} />
     );
-    title.value.classList.replace('col-9', 'col-7');
+    title.value.classList.replace('col-8', 'col-6');
     title.value.parentNode!.insertBefore(columnDom, title.value.nextSibling);
   }
 
