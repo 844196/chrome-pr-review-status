@@ -1,6 +1,6 @@
 {
   "name": "chrome-pr-review-status",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "repository": "https://github.com/844196/chrome-pr-review-status",
   "author": "Masaya Takeda <844196@gmail.com>",
   "contributors": [
