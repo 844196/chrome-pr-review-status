@@ -8,10 +8,17 @@ import { ReviewStatus, ReviewStatusRepository } from '../domain/review-status';
 import { DexieCacheStore, DexieCacheStoreTable, DexieCacheStoreTableSchema } from '../external/cache-store';
 import { PullRequestListPageImpl } from '../external/pr-list-page';
 import { GithubConnectionImpl } from '../external/review-status';
-import { InjectReviewStatus } from '../usecase/inject-review-status';
+import { InjectReviewStatus } from '../use-case/inject-review-status';
 import { setupDexie } from '../util/setup-dexie';
 
-(async () => {
+// TODO m-takeda: /issuesでもis:prの場合はtrueであるべき
+const isPRListPage = (url: string) => /^(?:\/[^\/]+){2}\/pulls/.test(new URL(url).pathname);
+
+const main = async () => {
+  if (!isPRListPage(location.href)) {
+    return;
+  }
+
   const page = await PullRequestListPageImpl.mount(document);
 
   const cacheTable = setupDexie<{ [INDEXED_DB_CACHE_TABLE_NAME]: DexieCacheStoreTable<ReviewStatus> }>(
@@ -28,7 +35,17 @@ import { setupDexie } from '../util/setup-dexie';
   );
 
   const repository = new ReviewStatusRepository(cacheStore, new GithubConnectionImpl());
-  const usecase = new InjectReviewStatus(repository);
+  const useCase = new InjectReviewStatus(repository);
 
-  await page.doInjectReviewStatus(usecase.invoke.bind(usecase));
+  await page.doInjectReviewStatus(useCase.invoke.bind(useCase));
+};
+
+(async () => {
+  const pjaxContainer = document.querySelector('[data-pjax-container]');
+  if (!pjaxContainer) {
+    return;
+  }
+
+  pjaxContainer.addEventListener('pjax:end', main);
+  main();
 })();
