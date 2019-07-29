@@ -40,7 +40,7 @@ const makeButton = async (doc: Document): Promise<ReviewStatusColumnToggleButton
     const btn = (
       <button id={TOGGLE_STATUS_BUTTON_ID} className={['btn', 'btn-default', 'float-right', 'mr-2'].join(' ')} />
     );
-    select('.subnav', doc).map(($nav) => $nav.append(btn));
+    select('.subnav', doc).map(($nav) => $nav.append(btn as any));
     return (btn as any) as HTMLButtonElement;
   });
 
@@ -59,7 +59,7 @@ const makeRow = async (rowDom: HTMLDivElement) => {
       />
     );
     title.value.classList.replace('col-8', 'col-6');
-    title.value.parentNode!.insertBefore(columnDom, title.value.nextSibling);
+    title.value.parentNode!.insertBefore(columnDom as any, title.value.nextSibling);
   }
 
   return await PullRequestListRowImpl.mount(rowDom);

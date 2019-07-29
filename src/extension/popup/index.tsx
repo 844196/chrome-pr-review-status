@@ -1,45 +1,65 @@
-import { React } from 'dom-chef/react';
-import { SSOT } from '../../common/ssot';
-import { store } from '../../store/store';
+import blue from '@material-ui/core/colors/blue';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormGroup from '@material-ui/core/FormGroup';
+import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
+import Switch from '@material-ui/core/Switch';
+import React from 'react';
+import * as ReactDOM from 'react-dom';
 
-const radioPair = (name: string, ssot: SSOT<boolean>) => {
-  const radio = (onChange: () => void) =>
-    (<input type="radio" name={name} onChange={onChange} /> as any) as HTMLInputElement;
-
-  const radioTrue = radio(() => ssot.change(true));
-  const radioFalse = radio(() => ssot.change(false));
-
-  ssot.watchImmediately((changed) => {
-    radioTrue.checked = changed === true;
-    radioFalse.checked = changed === false;
-  });
-
-  return (
-    <div>
-      {name}: <label>{radioTrue}ON</label> <label>{radioFalse} OFF</label>
-    </div>
-  );
+const useConfig = async <T extends any>(key: string, defV: T): Promise<[T, (newT: T) => void]> => {
+  return [
+    await new Promise<T>((ok) => chrome.storage.local.get({ [key]: defV }, (map) => ok(map[key]))),
+    (newT) => chrome.storage.local.set({ [key]: newT }),
+  ];
 };
 
-const textField = (name: string, ssot: SSOT<string>) => {
-  const onInput = function(this: HTMLInputElement) {
-    ssot.change(this.value);
-  };
-  return (
-    <div>
-      {name}: <input type="text" value={ssot.value} onInput={onInput} />
-    </div>
-  );
-};
+const theme = createMuiTheme({
+  palette: {
+    secondary: blue,
+  },
+  typography: {
+    fontSize: 10,
+  },
+});
 
 (async () => {
-  const components = [
-    radioPair('isDisplayDefault', await store.isDisplayReviewStatusColumn),
-    <hr />,
-    radioPair('enableBackgroundColor', await store.colorCoded),
-  ];
-  if (ENVIRONMENT === 'development') {
-    components.push(<hr />, textField('debugUsername', await store.loginUsername));
-  }
-  document.body.append(...components);
+  const [isDisplayDefault, setIsDisplayDefault] = await useConfig('isDisplayDefault', false);
+  const [enableBackgroundColor, setEnableBackgroundColor] = await useConfig('enableBackgroundColor', false);
+
+  const App = () => {
+    const [$isDisplayDefault, $setIsDisplayDefault] = React.useState(isDisplayDefault);
+    React.useEffect(() => setIsDisplayDefault($isDisplayDefault), [$isDisplayDefault]);
+
+    const [$enableBackgroundColor, $setEnableBackgroundColor] = React.useState(enableBackgroundColor);
+    React.useEffect(() => setEnableBackgroundColor($enableBackgroundColor), [$enableBackgroundColor]);
+
+    return (
+      <MuiThemeProvider theme={theme}>
+        <FormGroup>
+          <FormControlLabel
+            label="レビュー状況を表示するか"
+            control={
+              <Switch
+                size="small"
+                checked={$isDisplayDefault}
+                onChange={(_, checked) => $setIsDisplayDefault(checked)}
+              />
+            }
+          />
+          <FormControlLabel
+            label="自分のレビュー状況に応じてPR一覧の背景色を変更するか"
+            control={
+              <Switch
+                size="small"
+                checked={$enableBackgroundColor}
+                onChange={(_, checked) => $setEnableBackgroundColor(checked)}
+              />
+            }
+          />
+        </FormGroup>
+      </MuiThemeProvider>
+    );
+  };
+
+  ReactDOM.render(<App />, document.getElementById('app'));
 })();

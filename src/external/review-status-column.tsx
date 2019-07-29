@@ -34,12 +34,12 @@ export class ReviewStatusColumn {
       if (reviewerIcons.length === 0) {
         continue;
       }
-      this.$ele.append(
+      this.$ele.append((
         <div>
           {reviewResultIcon(result)}
           {reviewerIcons}
-        </div>,
-      );
+        </div>
+      ) as any);
     }
   }
 }

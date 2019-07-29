@@ -21,8 +21,4 @@ declare module 'octicons' {
   export = icons;
 }
 
-declare namespace JSX {
-  interface Element extends HTMLElement {}
-}
-
 declare module 'dom-chef/react';
