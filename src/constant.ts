@@ -12,8 +12,6 @@ export const ROW_BG_COLOR_MAP: { [_ in ReviewState]: string } = {
 
 export const STATUS_DOM_CLASS_NAME = 'review-status';
 
-export const TOGGLE_STATUS_BUTTON_ID = 'status-display-toggle-btn';
-
 export const INDEXED_DB_NAME = 'chrome-pr-review-status';
 
 export const INDEXED_DB_VERSION = 1;

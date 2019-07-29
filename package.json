@@ -10,10 +10,9 @@
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.3.0",
+    "@primer/octicons-react": "^9.1.1",
     "dexie": "^2.0.4",
-    "dom-chef": "^3.4.2",
     "fp-ts": "^1.12.3",
-    "octicons": "^8.3.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6"
   },

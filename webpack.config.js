@@ -7,7 +7,7 @@ const extension = (path) => `./src/extension/${path}`;
 
 module.exports = {
   entry: {
-    content: extension('content.ts'),
+    content: extension('content.tsx'),
     'popup/index': extension('popup/index.tsx'),
   },
   output: {

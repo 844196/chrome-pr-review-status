@@ -67,6 +67,16 @@ export class ReviewStatus implements Cacheable<ReviewStatusJSON> {
     }
     return none;
   }
+
+  public allReviewers() {
+    const rs = [];
+    for (const [, set] of Object.entries(this.container)) {
+      for (const { reviewer } of set) {
+        rs.push(reviewer);
+      }
+    }
+    return rs;
+  }
 }
 
 export class ReviewStatusRepository {
