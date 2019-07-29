@@ -10,7 +10,7 @@ export const ROW_BG_COLOR_MAP: { [_ in ReviewState]: string } = {
   requestedChanges: '#f3b9b9',
 };
 
-export const STATUS_DOM_CLASSNAME = 'review-status';
+export const STATUS_DOM_CLASS_NAME = 'review-status';
 
 export const TOGGLE_STATUS_BUTTON_ID = 'status-display-toggle-btn';
 
