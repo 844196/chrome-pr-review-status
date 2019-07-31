@@ -1,30 +1,28 @@
 import blue from '@material-ui/core/colors/blue';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import FormGroup from '@material-ui/core/FormGroup';
+import Icon from '@material-ui/core/Icon';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import ListItemText from '@material-ui/core/ListItemText';
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import Switch from '@material-ui/core/Switch';
 import React from 'react';
 import * as ReactDOM from 'react-dom';
-
-const useConfig = async <T extends any>(key: string, defV: T): Promise<[T, (newT: T) => void]> => {
-  return [
-    await new Promise<T>((ok) => chrome.storage.local.get({ [key]: defV }, (map) => ok(map[key]))),
-    (newT) => chrome.storage.local.set({ [key]: newT }),
-  ];
-};
+import { useConfig } from '../../external/chrome';
 
 const theme = createMuiTheme({
   palette: {
     secondary: blue,
   },
   typography: {
-    fontSize: 10,
+    fontSize: 13,
   },
 });
 
 (async () => {
-  const [isDisplayDefault, setIsDisplayDefault] = await useConfig('isDisplayDefault', false);
-  const [enableBackgroundColor, setEnableBackgroundColor] = await useConfig('enableBackgroundColor', false);
+  const [isDisplayDefault, setIsDisplayDefault] = await useConfig('isDisplayDefault');
+  const [enableBackgroundColor, setEnableBackgroundColor] = await useConfig('enableBackgroundColor');
 
   const App = () => {
     const [$isDisplayDefault, $setIsDisplayDefault] = React.useState(isDisplayDefault);
@@ -35,28 +33,43 @@ const theme = createMuiTheme({
 
     return (
       <MuiThemeProvider theme={theme}>
-        <FormGroup>
-          <FormControlLabel
-            label="レビュー状況を表示するか"
-            control={
+        <List dense={true}>
+          <ListItem>
+            <ListItemIcon>
+              <Icon>ballot</Icon>
+            </ListItemIcon>
+            <ListItemText primary="Display review status" secondary="レビュー状況を表示する" />
+            <ListItemSecondaryAction>
               <Switch
                 size="small"
                 checked={$isDisplayDefault}
                 onChange={(_, checked) => $setIsDisplayDefault(checked)}
               />
-            }
-          />
-          <FormControlLabel
-            label="自分のレビュー状況に応じてPR一覧の背景色を変更するか"
-            control={
+            </ListItemSecondaryAction>
+          </ListItem>
+          <ListItem>
+            <ListItemIcon>
+              <Icon>format_paint</Icon>
+            </ListItemIcon>
+            <ListItemText
+              primary="Enable row background color"
+              secondary={
+                <span>
+                  自分のレビュー状況に応じて
+                  <br />
+                  リストの背景色を変更する
+                </span>
+              }
+            />
+            <ListItemSecondaryAction>
               <Switch
                 size="small"
                 checked={$enableBackgroundColor}
                 onChange={(_, checked) => $setEnableBackgroundColor(checked)}
               />
-            }
-          />
-        </FormGroup>
+            </ListItemSecondaryAction>
+          </ListItem>
+        </List>
       </MuiThemeProvider>
     );
   };
