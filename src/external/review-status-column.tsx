@@ -1,7 +1,7 @@
 import CircularProgress from '@material-ui/core/CircularProgress';
 import grey from '@material-ui/core/colors/grey';
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
-import Octicon, { Check, Comment, Icon, PrimitiveDot, X } from '@primer/octicons-react';
+import Octicon, { Check, Comment, Icon, PrimitiveDot, RequestChanges, X } from '@primer/octicons-react';
 import { Either } from 'fp-ts/lib/Either';
 import React from 'react';
 import { STATUS_DOM_ROW_ORDER } from '../constant';
@@ -113,6 +113,10 @@ const ReviewResultIcon: React.FC<{ reviewResult: ReviewResult }> = ({ reviewResu
     case 'approved':
       icon = Check;
       colorClass = 'text-green';
+      break;
+    case 'suggestedChanges':
+      icon = RequestChanges;
+      colorClass = 'text-red';
       break;
     default:
       icon = PrimitiveDot;

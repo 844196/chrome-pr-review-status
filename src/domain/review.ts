@@ -1,4 +1,4 @@
-export type ReviewResult = 'unreviewed' | 'leftComments' | 'requestedChanges' | 'approved';
+export type ReviewResult = 'unreviewed' | 'leftComments' | 'requestedChanges' | 'approved' | 'suggestedChanges';
 
 export type ReviewState = ReviewResult | 'notReviewer';
 

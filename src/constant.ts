@@ -7,6 +7,7 @@ export const ROW_BG_COLOR_MAP: { [_ in ReviewState]: string } = {
   unreviewed: '#f3f3b9',
   approved: '#b9f3d2',
   leftComments: '#e2e2e2',
+  suggestedChanges: '#f3b9b9',
   requestedChanges: '#f3b9b9',
 };
 

@@ -9,7 +9,7 @@ import { select, selectAll } from '../util/query-selector';
 const svgClassToResultMap = new StrMap<ReviewResult>({
   'octicon-check': 'approved',
   'octicon-x': 'requestedChanges',
-  'octicon-request-changes': 'requestedChanges',
+  'octicon-request-changes': 'suggestedChanges',
   'octicon-comment': 'leftComments',
   'octicon-primitive-dot': 'unreviewed',
 });

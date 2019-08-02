@@ -19,6 +19,7 @@ export class ReviewStatus implements Cacheable<ReviewStatusJSON> {
     leftComments: new Set(),
     requestedChanges: new Set(),
     unreviewed: new Set(),
+    suggestedChanges: new Set(),
   };
 
   public constructor(public readonly url: string) {}
@@ -41,6 +42,7 @@ export class ReviewStatus implements Cacheable<ReviewStatusJSON> {
         leftComments: [...this.reviewsOf('leftComments')],
         requestedChanges: [...this.reviewsOf('requestedChanges')],
         unreviewed: [...this.reviewsOf('unreviewed')],
+        suggestedChanges: [...this.reviewsOf('suggestedChanges')],
       },
     };
   }
