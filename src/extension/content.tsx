@@ -1,7 +1,6 @@
 import React from 'react';
 import * as ReactDOM from 'react-dom';
 import {
-  INDEXED_DB_CACHE_TABLE_MAX_AGE,
   INDEXED_DB_CACHE_TABLE_NAME,
   INDEXED_DB_NAME,
   INDEXED_DB_VERSION,
@@ -24,7 +23,7 @@ const cacheTable = setupDexie<{ [INDEXED_DB_CACHE_TABLE_NAME]: DexieCacheStoreTa
     [INDEXED_DB_CACHE_TABLE_NAME]: DexieCacheStoreTableSchema,
   },
 )[INDEXED_DB_CACHE_TABLE_NAME];
-const cacheStore = new DexieCacheStore(cacheTable, INDEXED_DB_CACHE_TABLE_MAX_AGE);
+const cacheStore = new DexieCacheStore(cacheTable);
 const repository = new ReviewStatusRepository(cacheStore, new GithubConnectionImpl());
 
 const mountRow = (loginUsername: string, config: Config) => (row: HTMLDivElement) => {
@@ -75,13 +74,16 @@ const main = async () => {
 
   const [isDisplayDefault] = await useConfig('isDisplayDefault');
   const [enableBackgroundColor] = await useConfig('enableBackgroundColor');
+  const [cacheMaxAge] = await useConfig('cacheMaxAge');
   if (!isDisplayDefault && !enableBackgroundColor) {
     return;
   }
 
+  cacheStore.cacheMaxAge = cacheMaxAge;
+
   document
     .querySelectorAll<HTMLDivElement>('.js-issue-row')
-    .forEach(mountRow(loginUsername, { isDisplayDefault, enableBackgroundColor }));
+    .forEach(mountRow(loginUsername, { isDisplayDefault, enableBackgroundColor, cacheMaxAge }));
 };
 
 (() => {

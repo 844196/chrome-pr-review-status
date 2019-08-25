@@ -1,6 +1,7 @@
 import Dexie from 'dexie';
 import { fromNullable, none, some } from 'fp-ts/lib/Option';
 import { tryCatch } from 'fp-ts/lib/TaskEither';
+import { INDEXED_DB_CACHE_TABLE_DEFAULT_MAX_AGE } from '../constant';
 import { Cacheable, CacheStore, Inflater } from '../domain/cache-store';
 
 const DexieCacheStoreTablePK = 'cacheKey';
@@ -17,12 +18,18 @@ export type DexieCacheStoreTable<C extends Cacheable<any>> = Dexie.Table<CacheRe
 export const DexieCacheStoreTableSchema = `${DexieCacheStoreTablePK}, ${DexieCacheStoreTableTimestamp}`;
 
 export class DexieCacheStore<C extends Cacheable<any>> implements CacheStore<C> {
-  public constructor(private readonly table: DexieCacheStoreTable<C>, private readonly cacheMaxAge: number) {}
+  private $cacheMaxAge = INDEXED_DB_CACHE_TABLE_DEFAULT_MAX_AGE;
+
+  public constructor(private readonly table: DexieCacheStoreTable<C>) {}
+
+  public set cacheMaxAge(x: number) {
+    this.$cacheMaxAge = x;
+  }
 
   public async get(cacheKey: C['cacheKey'], inflater: Inflater<C>) {
     return tryCatch(() => this.table.get(cacheKey), String)
       .map(fromNullable)
-      .map((record) => record.filter(({ cachedAt }) => nowSec() - cachedAt <= this.cacheMaxAge))
+      .map((record) => record.filter(({ cachedAt }) => nowSec() - cachedAt <= this.$cacheMaxAge))
       .map((record) => record.map(({ cachedValue }) => inflater(cachedValue)))
       .run();
   }
@@ -44,7 +51,7 @@ export class DexieCacheStore<C extends Cacheable<any>> implements CacheStore<C> 
     const exec = () =>
       this.table
         .where(DexieCacheStoreTableTimestamp)
-        .below(nowSec() - this.cacheMaxAge)
+        .below(nowSec() - this.$cacheMaxAge)
         .delete();
     return await tryCatch(exec, String)
       .map((affected) => (affected > 0 ? some(affected) : none))

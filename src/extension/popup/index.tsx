@@ -9,6 +9,7 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import Switch from '@material-ui/core/Switch';
 import React from 'react';
 import * as ReactDOM from 'react-dom';
+import { INDEXED_DB_CACHE_TABLE_DEFAULT_MAX_AGE } from '../../constant';
 import { useConfig } from '../../external/chrome';
 
 const theme = createMuiTheme({
@@ -23,6 +24,7 @@ const theme = createMuiTheme({
 (async () => {
   const [isDisplayDefault, setIsDisplayDefault] = await useConfig('isDisplayDefault');
   const [enableBackgroundColor, setEnableBackgroundColor] = await useConfig('enableBackgroundColor');
+  const [cacheMaxAge, setCacheMaxAge] = await useConfig('cacheMaxAge');
 
   const App = () => {
     const [$isDisplayDefault, $setIsDisplayDefault] = React.useState(isDisplayDefault);
@@ -31,9 +33,25 @@ const theme = createMuiTheme({
     const [$enableBackgroundColor, $setEnableBackgroundColor] = React.useState(enableBackgroundColor);
     React.useEffect(() => setEnableBackgroundColor($enableBackgroundColor), [$enableBackgroundColor]);
 
+    const [$cacheMaxAge, $setCacheMaxAge] = React.useState(cacheMaxAge);
+    React.useEffect(() => setCacheMaxAge($cacheMaxAge), [$cacheMaxAge]);
+
     return (
       <MuiThemeProvider theme={theme}>
         <List dense={true}>
+          <ListItem>
+            <ListItemIcon>
+              <Icon>restore</Icon>
+            </ListItemIcon>
+            <ListItemText primary="Enable cache" secondary="キャッシュを有効化する" />
+            <ListItemSecondaryAction>
+              <Switch
+                size="small"
+                checked={$cacheMaxAge > 0}
+                onChange={(_, checked) => $setCacheMaxAge(checked ? INDEXED_DB_CACHE_TABLE_DEFAULT_MAX_AGE : 0)}
+              />
+            </ListItemSecondaryAction>
+          </ListItem>
           <ListItem>
             <ListItemIcon>
               <Icon>ballot</Icon>
