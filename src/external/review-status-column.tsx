@@ -120,7 +120,7 @@ const ReviewResultIcon: React.FC<{ reviewResult: ReviewResult }> = ({ reviewResu
       break;
     default:
       icon = PrimitiveDot;
-      colorClass = 'bg-pending';
+      colorClass = 'color-yellow-7';
       break;
   }
 
