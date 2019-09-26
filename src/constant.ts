@@ -1,6 +1,12 @@
 import { ReviewResult, ReviewState } from './domain/review';
 
-export const STATUS_DOM_ROW_ORDER: ReviewResult[] = ['approved', 'requestedChanges', 'leftComments', 'unreviewed'];
+export const STATUS_DOM_ROW_ORDER: ReviewResult[] = [
+  'approved',
+  'requestedChanges',
+  'suggestedChanges',
+  'leftComments',
+  'unreviewed',
+];
 
 export const ROW_BG_COLOR_MAP: { [_ in ReviewState]: string } = {
   notReviewer: 'inherit',

@@ -9,7 +9,7 @@ type ReviewSet<T extends ReviewResult> = Set<Review<T>>;
 interface ReviewStatusJSON {
   url: string;
   reviews: {
-    [P in ReviewResult]: Array<Review<P>> // 一意であることは考慮しない
+    [P in ReviewResult]: Array<Review<P>>; // 一意であることは考慮しない
   };
 }
 

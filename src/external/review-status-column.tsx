@@ -101,26 +101,32 @@ const ReviewerIcon: React.FC<{ reviewer: Reviewer }> = ({ reviewer }) => (
 const ReviewResultIcon: React.FC<{ reviewResult: ReviewResult }> = ({ reviewResult }) => {
   let icon: Icon;
   let colorClass: string;
+  let width: number | undefined;
+  let height: number | undefined;
   switch (reviewResult) {
     case 'leftComments':
       icon = Comment;
       colorClass = 'text-gray';
       break;
     case 'requestedChanges':
+      // suggestedChangesに統合された?
       icon = X;
       colorClass = 'text-red';
       break;
     case 'approved':
       icon = Check;
       colorClass = 'text-green';
+      height = 15;
       break;
     case 'suggestedChanges':
       icon = RequestChanges;
       colorClass = 'text-red';
+      height = 15;
       break;
     default:
       icon = PrimitiveDot;
       colorClass = 'color-yellow-7';
+      width = 8;
       break;
   }
 
@@ -134,7 +140,7 @@ const ReviewResultIcon: React.FC<{ reviewResult: ReviewResult }> = ({ reviewResu
         height: '20px',
       }}
     >
-      <Octicon icon={icon} verticalAlign="middle" />
+      <Octicon icon={icon} verticalAlign="middle" width={width} height={height} />
     </span>
   );
 };
