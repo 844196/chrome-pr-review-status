@@ -5,10 +5,10 @@ cache: yarn
 install:
   - yarn install
 script:
-  - yarn ci
+  - yarn test
   - yarn build
 before_deploy:
-  - NAME=chrome-pr-review-status-${TRAVIS_TAG} yarn zip
+  - NAME=chrome-pr-review-status-${TRAVIS_TAG} yarn dist
 deploy:
   provider: releases
   api_key:
