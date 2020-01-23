@@ -48,8 +48,8 @@ const mountRow = (loginUsername: string, config: Config) => (row: HTMLDivElement
     reviewStatusCol.classList.add(STATUS_DOM_CLASS_NAME, 'col-2', 'p-2', 'float-left');
     reviewStatusCol.style.height = '105.312px';
 
-    const titleCol = row.querySelector('.col-8')!;
-    titleCol.classList.replace('col-8', 'col-6');
+    const titleCol = row.querySelector('.flex-auto.min-width-0.lh-condensed.p-2')!;
+    titleCol.classList.replace('flex-auto', 'col-6');
     titleCol.parentNode!.insertBefore(reviewStatusCol, titleCol.nextSibling);
   }
 
