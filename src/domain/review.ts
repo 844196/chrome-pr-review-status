@@ -1,13 +1,11 @@
-export type ReviewResult = 'unreviewed' | 'leftComments' | 'requestedChanges' | 'approved' | 'suggestedChanges';
-
-export type ReviewState = ReviewResult | 'notReviewer';
+export type ReviewState = 'Unreviewed' | 'LeftComments' | 'RequestedChanges' | 'Approved';
 
 export interface Reviewer {
   name: string;
   iconUrl: string;
 }
 
-export interface Review<T extends ReviewResult> {
+export interface Review {
   reviewer: Reviewer;
-  result: T;
+  state: ReviewState;
 }

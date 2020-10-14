@@ -10,16 +10,20 @@
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.3.0",
-    "@primer/octicons-react": "^9.1.1",
+    "@primer/octicons-react": "^11.0.0",
     "dexie": "^2.0.4",
     "fp-ts": "^1.12.3",
     "react": "^16.8.6",
-    "react-dom": "^16.8.6"
+    "react-content-loader": "^5.1.2",
+    "react-dom": "^16.8.6",
+    "styled-components": "^5.2.0",
+    "use-http": "^1.0.15"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.77",
     "@types/react": "^16.8.23",
     "@types/react-dom": "^16.8.5",
+    "@types/styled-components": "^5.1.4",
     "bestzip": "^2.1.2",
     "copy-webpack-plugin": "^4.6.0",
     "cross-env": "^5.2.0",
