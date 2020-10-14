@@ -6,15 +6,15 @@ import {
   INDEXED_DB_VERSION,
   ROW_BG_COLOR_MAP,
   STATUS_DOM_CLASS_NAME,
-} from '../constant';
-import { ReviewState } from '../domain/review';
-import { ReviewStatus, ReviewStatusRepository } from '../domain/review-status';
-import { DexieCacheStore, DexieCacheStoreTable, DexieCacheStoreTableSchema } from '../external/cache-store';
-import { Config, useConfig } from '../external/chrome';
-import { GithubConnectionImpl } from '../external/github';
-import { ReviewStatusColumn } from '../external/review-status-column';
-import { select } from '../util/query-selector';
-import { setupDexie } from '../util/setup-dexie';
+} from './constant';
+import { ReviewState } from './domain/review';
+import { ReviewStatus, ReviewStatusRepository } from './domain/review-status';
+import { DexieCacheStore, DexieCacheStoreTable, DexieCacheStoreTableSchema } from './external/cache-store';
+import { Config, useConfig } from './external/chrome';
+import { GithubConnectionImpl } from './external/github';
+import { ReviewStatusColumn } from './external/review-status-column';
+import { select } from './util/query-selector';
+import { setupDexie } from './util/setup-dexie';
 
 const cacheTable = setupDexie<{ [INDEXED_DB_CACHE_TABLE_NAME]: DexieCacheStoreTable<ReviewStatus> }>(
   INDEXED_DB_NAME,

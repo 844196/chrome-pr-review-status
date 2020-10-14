@@ -1,2 +1,2 @@
 // SEE: webpack.config.js -- DefinePlugin
-declare var ENVIRONMENT: 'production' | 'development';
+declare var NODE_ENV: 'production' | 'development';

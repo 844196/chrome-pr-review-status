@@ -9,8 +9,8 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import Switch from '@material-ui/core/Switch';
 import React from 'react';
 import * as ReactDOM from 'react-dom';
-import { INDEXED_DB_CACHE_TABLE_DEFAULT_MAX_AGE } from '../../constant';
-import { useConfig } from '../../external/chrome';
+import { INDEXED_DB_CACHE_TABLE_DEFAULT_MAX_AGE } from './constant';
+import { useConfig } from './external/chrome';
 
 const theme = createMuiTheme({
   palette: {
